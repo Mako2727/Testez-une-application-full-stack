@@ -7,6 +7,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { expect } from '@jest/globals';
+import { of, throwError } from 'rxjs';
+import { AuthService } from '../../services/auth.service';
+import { Router } from '@angular/router';
 
 import { RegisterComponent } from './register.component';
 
@@ -14,27 +17,67 @@ describe('RegisterComponent', () => {
   let component: RegisterComponent;
   let fixture: ComponentFixture<RegisterComponent>;
 
+  const mockAuthService = {
+    register: jest.fn()
+  };
+
+  const mockRouter = {
+    navigate: jest.fn()
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [RegisterComponent],
-      imports: [
-        BrowserAnimationsModule,
-        HttpClientModule,
-        ReactiveFormsModule,  
-        MatCardModule,
-        MatFormFieldModule,
-        MatIconModule,
-        MatInputModule
+      imports: [ReactiveFormsModule],
+      providers: [
+        FormBuilder,
+        { provide: AuthService, useValue: mockAuthService },
+        { provide: Router, useValue: mockRouter }
       ]
-    })
-      .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(RegisterComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should create the register component', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should navigate to /login on successful submit', () => {
+    mockAuthService.register.mockReturnValue(of(void 0)); // simulate void Observable
+
+    component.form.setValue({
+      email: 'test@example.com',
+      firstName: 'John',
+      lastName: 'Doe',
+      password: '123456'
+    });
+
+    component.submit();
+
+    expect(mockAuthService.register).toHaveBeenCalledWith({
+      email: 'test@example.com',
+      firstName: 'John',
+      lastName: 'Doe',
+      password: '123456'
+    });
+    expect(mockRouter.navigate).toHaveBeenCalledWith(['/login']);
+    expect(component.onError).toBe(false);
+  });
+
+  it('should set onError to true on register error', () => {
+    mockAuthService.register.mockReturnValue(throwError(() => new Error('Register failed')));
+
+    component.form.setValue({
+      email: 'test@example.com',
+      firstName: 'John',
+      lastName: 'Doe',
+      password: '123456'
+    });
+
+    component.submit();
+
+    expect(component.onError).toBe(true);
   });
 });
