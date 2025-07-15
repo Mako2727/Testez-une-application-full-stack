@@ -30,10 +30,19 @@ describe('LoginComponent', () => {
     navigate: jest.fn()
   };
 
-  beforeEach(async () => {
+ beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [LoginComponent],
-      imports: [ReactiveFormsModule, RouterTestingModule],
+      imports: [
+        ReactiveFormsModule,
+        RouterTestingModule,
+        HttpClientModule,
+        MatCardModule,
+        MatFormFieldModule,
+        MatIconModule,
+        MatInputModule,
+        BrowserAnimationsModule
+      ],
       providers: [
         FormBuilder,
         { provide: AuthService, useValue: mockAuthService },

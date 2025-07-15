@@ -25,19 +25,28 @@ describe('RegisterComponent', () => {
     navigate: jest.fn()
   };
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [RegisterComponent],
-      imports: [ReactiveFormsModule],
-      providers: [
-        FormBuilder,
-        { provide: AuthService, useValue: mockAuthService },
-        { provide: Router, useValue: mockRouter }
-      ]
-    }).compileComponents();
+beforeEach(async () => {
+  await TestBed.configureTestingModule({
+    declarations: [RegisterComponent],
+    imports: [
+      ReactiveFormsModule,
+      HttpClientModule,
+      MatCardModule,
+      MatFormFieldModule,
+      MatInputModule,
+      MatIconModule,
+      BrowserAnimationsModule
+    ],
+    providers: [
+      FormBuilder,
+      { provide: AuthService, useValue: mockAuthService },
+      { provide: Router, useValue: mockRouter }
+    ]
+  }).compileComponents();
 
     fixture = TestBed.createComponent(RegisterComponent);
     component = fixture.componentInstance;
+     fixture.detectChanges();
   });
 
   it('should create the register component', () => {

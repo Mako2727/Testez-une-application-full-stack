@@ -53,14 +53,22 @@ describe('MeComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [MeComponent],
-      providers: [
-        { provide: SessionService, useValue: mockSessionService },
-        { provide: UserService, useValue: mockUserService },
-        { provide: MatSnackBar, useValue: mockSnackBar },
-        { provide: Router, useValue: mockRouter }
-      ]
-    }).compileComponents();
+  declarations: [MeComponent],
+  imports: [
+    HttpClientModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatSnackBarModule
+  ],
+  providers: [
+    { provide: SessionService, useValue: mockSessionService },
+    { provide: UserService, useValue: mockUserService },
+    { provide: MatSnackBar, useValue: mockSnackBar },
+    { provide: Router, useValue: mockRouter }
+  ]
+}).compileComponents();
 
     fixture = TestBed.createComponent(MeComponent);
     component = fixture.componentInstance;

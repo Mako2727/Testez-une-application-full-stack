@@ -18,7 +18,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 
 
-
 describe('DetailComponent', () => {
   let component: DetailComponent;
   let fixture: ComponentFixture<DetailComponent>;
@@ -64,7 +63,8 @@ beforeEach(async () => {
         HttpClientModule,
         ReactiveFormsModule,
         MatIconModule,
-        MatCardModule     
+        MatCardModule,
+        NoopAnimationsModule     
       ],
     providers: [
       FormBuilder,                    // <-- Ajouté ici
@@ -72,8 +72,7 @@ beforeEach(async () => {
       { provide: SessionApiService, useValue: mockSessionApiService },
       { provide: TeacherService, useValue: mockTeacherService },
       { provide: Router, useValue: mockRouter },
-      { provide: ActivatedRoute, useValue: mockActivatedRoute },
-      { provide: SessionService, useValue: mockSessionService }
+      { provide: ActivatedRoute, useValue: mockActivatedRoute }
     ]
   }).compileComponents();
 

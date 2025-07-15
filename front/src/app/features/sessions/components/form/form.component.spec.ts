@@ -55,20 +55,31 @@ describe('FormComponent', () => {
     open: jest.fn()
   };
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [FormComponent],
-      imports: [ReactiveFormsModule, MatSnackBarModule],
-      providers: [
-        FormBuilder,
-        { provide: SessionService, useValue: mockSessionService },
-        { provide: Router, useValue: mockRouter },
-        { provide: ActivatedRoute, useValue: mockActivatedRoute },
-        { provide: SessionApiService, useValue: mockSessionApiService },
-        { provide: TeacherService, useValue: mockTeacherService },
-        { provide: MatSnackBar, useValue: mockMatSnackBar }
-      ]
-    }).compileComponents();
+beforeEach(async () => {
+  await TestBed.configureTestingModule({
+    declarations: [FormComponent],
+    imports: [
+      ReactiveFormsModule,
+      MatSnackBarModule,
+      HttpClientModule,
+      RouterTestingModule,
+      BrowserAnimationsModule,
+      MatFormFieldModule,
+      MatInputModule,
+      MatSelectModule,
+      MatIconModule,
+      MatCardModule
+    ],
+    providers: [
+      FormBuilder,
+      { provide: SessionService, useValue: mockSessionService },
+      { provide: Router, useValue: mockRouter },
+      { provide: ActivatedRoute, useValue: mockActivatedRoute },
+      { provide: SessionApiService, useValue: mockSessionApiService },
+      { provide: TeacherService, useValue: mockTeacherService },
+      { provide: MatSnackBar, useValue: mockMatSnackBar }
+    ]
+  }).compileComponents();
 
     fixture = TestBed.createComponent(FormComponent);
     component = fixture.componentInstance;
