@@ -34,7 +34,9 @@
               "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
               "src/styles.scss"
             ],
-            "scripts": []
+            "scripts": [],"customWebpackConfig": {
+        "path": "./coverage.webpack.ts"
+      }
           },
           "configurations": {
             "production": {
@@ -81,7 +83,7 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "project-name:build",
+            "browserTarget": "yoga:build",
             "proxyConfig": "src/proxy.config.json"
           },
           "configurations": {
@@ -90,7 +92,9 @@
             },
             "development": {
               "browserTarget": "yoga:build:development"
-            }
+            }, "e2e": {
+      "browserTarget": "yoga:build:e2e"
+    }
           },
           "defaultConfiguration": "development"
         },
@@ -107,13 +111,22 @@
           }
         },
         "test": {
-          "builder": "@angular-builders/jest:run",
+           "builder": "@angular-builders/custom-webpack:karma",
           "options": {
+             "customWebpackConfig": {
+        "path": "./coverage.webpack.ts"
+      },
             "tsConfig": "tsconfig.spec.json",
-            "assets": [
-              "src/favicon.ico",
-              "src/assets"
-            ],
+           "assets": [
+  "src/favicon.ico",
+  "src/assets",
+  {
+    "glob": "**/*",
+    "input": "coverage",
+    "output": "/coverage"
+  }
+],
+            
             "styles": [
               "src/styles.scss"
             ],

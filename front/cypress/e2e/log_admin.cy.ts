@@ -10,6 +10,6 @@ describe('Test login via interface Angular', () => {
     cy.get('button[type="submit"]').click();
 
     // Vérifie que tu es bien connecté (ex. présence d’un élément de dashboard)
-    cy.contains('Rentals available').should('exist');
+    cy.contains('Create').should('exist');
   });
 });

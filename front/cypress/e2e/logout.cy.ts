@@ -11,5 +11,11 @@ describe('Test login via interface Angular', () => {
 
     // Vérifie que tu es bien connecté (ex. présence d’un élément de dashboard)
     cy.contains('Rentals available').should('exist');
+
+cy.get('span.link').contains('Logout').click();
+cy.wait(1000);
+cy.url().should('eq', 'http://localhost:4200/');
+
+
   });
 });
