@@ -14,6 +14,6 @@ describe('Test login via interface Angular', () => {
     cy.get('span[routerlink="me"]').should('be.visible').click();
 
     // Vérifie que tu es bien connecté (ex. présence d’un élément de dashboard)
-    cy.contains('yoga@studio.com').should('exist');
+    cy.contains('You are admin').should('exist');
   });
 });

@@ -1,4 +1,5 @@
 /// <reference types="cypress" />
+import { FRONT_URL } from '../../support/urls';
 
 describe('Test login via interface Angular', () => {
   it('doit se connecter via le formulaire Angular', () => {
