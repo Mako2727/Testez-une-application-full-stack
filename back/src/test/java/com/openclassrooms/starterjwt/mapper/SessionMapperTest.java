@@ -21,7 +21,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
 class SessionMapperTest {
@@ -41,65 +40,125 @@ class SessionMapperTest {
     private User user1;
     private User user2;
 
-   @BeforeEach
-void setUp() {
-    teacher = new Teacher();
-    teacher.setId(10L);
-    teacher.setFirstName("John");
-    teacher.setLastName("Doe");
+    @BeforeEach
+    void setUp() {
+        teacher = new Teacher();
+        teacher.setId(10L);
+        teacher.setFirstName("John");
+        teacher.setLastName("Doe");
 
-    user1 = new User();
-    user1.setId(100L);
+        user1 = new User();
+        user1.setId(100L);
 
-    user2 = new User();
-    user2.setId(101L);
+        user2 = new User();
+        user2.setId(101L);
 
-    sessionDto = new SessionDto();
-    sessionDto.setId(1L);
-    sessionDto.setName("Yoga");
-    sessionDto.setDescription("Relaxing session");
-    sessionDto.setTeacher_id(10L);
-    sessionDto.setDate(new Date());
-    sessionDto.setUsers(Arrays.asList(100L, 101L));
+        sessionDto = new SessionDto();
+        sessionDto.setId(1L);
+        sessionDto.setName("Yoga");
+        sessionDto.setDescription("Relaxing session");
+        sessionDto.setTeacher_id(10L);
+        sessionDto.setDate(new Date());
+        sessionDto.setUsers(Arrays.asList(100L, 101L));
 
-    session = new Session();
-    session.setId(1L);
-    session.setName("Yoga");
-    session.setDescription("Relaxing session");
-    session.setDate(new Date());
-    session.setTeacher(teacher);
-    session.setUsers(Arrays.asList(user1, user2));
-}
+        session = new Session();
+        session.setId(1L);
+        session.setName("Yoga");
+        session.setDescription("Relaxing session");
+        session.setDate(new Date());
+        session.setTeacher(teacher);
+        session.setUsers(Arrays.asList(user1, user2));
+    }
 
-@Test
-void testToEntity() {
-    // Mocks nécessaires uniquement pour ce test
-    when(teacherService.findById(10L)).thenReturn(teacher);
-    when(userService.findById(100L)).thenReturn(user1);
-    when(userService.findById(101L)).thenReturn(user2);
+    @Test
+    void testToEntity() {
+        when(teacherService.findById(10L)).thenReturn(teacher);
+        when(userService.findById(100L)).thenReturn(user1);
+        when(userService.findById(101L)).thenReturn(user2);
 
-    Session result = sessionMapper.toEntity(sessionDto);
+        Session result = sessionMapper.toEntity(sessionDto);
 
-    assertNotNull(result);
-    assertEquals(sessionDto.getDescription(), result.getDescription());
-    assertNotNull(result.getTeacher());
-    assertEquals(teacher.getId(), result.getTeacher().getId());
-    assertEquals(2, result.getUsers().size());
-    assertNotNull(result.getDate());
-}
+        assertNotNull(result);
+        assertEquals(sessionDto.getDescription(), result.getDescription());
+        assertNotNull(result.getTeacher());
+        assertEquals(teacher.getId(), result.getTeacher().getId());
+        assertEquals(2, result.getUsers().size());
+        assertNotNull(result.getDate());
+    }
 
-@Test
-void testToDto() {
-    // Aucun mock ici, car toDto n’utilise pas les services
+    @Test
+    void testToEntity_withNullTeacherId() {
+        sessionDto.setTeacher_id(null);
+        when(userService.findById(100L)).thenReturn(user1);
+        when(userService.findById(101L)).thenReturn(user2);
 
-    SessionDto dto = sessionMapper.toDto(session);
+        Session result = sessionMapper.toEntity(sessionDto);
 
-    assertNotNull(dto);
-    assertEquals(session.getDescription(), dto.getDescription());
-    assertEquals(teacher.getId(), dto.getTeacher_id());
-    assertEquals(2, dto.getUsers().size());
-    assertTrue(dto.getUsers().contains(user1.getId()));
-    assertTrue(dto.getUsers().contains(user2.getId()));
-    assertNotNull(dto.getDate());
-}
+        assertNotNull(result);
+        assertNull(result.getTeacher());
+        assertEquals(2, result.getUsers().size());
+        verify(teacherService, never()).findById(anyLong());
+    }
+
+    @Test
+    void testToEntity_withNullUsers() {
+        sessionDto.setUsers(null);
+        when(teacherService.findById(10L)).thenReturn(teacher);
+
+        Session result = sessionMapper.toEntity(sessionDto);
+
+        assertNotNull(result);
+        assertEquals(teacher, result.getTeacher());
+        assertNotNull(result.getUsers());
+        assertTrue(result.getUsers().isEmpty());
+    }
+
+    @Test
+    void testToEntity_userServiceReturnsNull() {
+        when(teacherService.findById(10L)).thenReturn(teacher);
+        when(userService.findById(100L)).thenReturn(user1);
+        when(userService.findById(101L)).thenReturn(null);
+
+        Session result = sessionMapper.toEntity(sessionDto);
+
+        assertNotNull(result);
+        assertEquals(teacher, result.getTeacher());
+        assertEquals(2, result.getUsers().size());
+        assertEquals(user1, result.getUsers().get(0));
+        assertNull(result.getUsers().get(1));
+    }
+
+    @Test
+    void testToDto() {
+        SessionDto dto = sessionMapper.toDto(session);
+
+        assertNotNull(dto);
+        assertEquals(session.getDescription(), dto.getDescription());
+        assertEquals(teacher.getId(), dto.getTeacher_id());
+        assertEquals(2, dto.getUsers().size());
+        assertTrue(dto.getUsers().contains(user1.getId()));
+        assertTrue(dto.getUsers().contains(user2.getId()));
+        assertNotNull(dto.getDate());
+    }
+
+    @Test
+    void testToDto_withNullTeacher() {
+        session.setTeacher(null);
+
+        SessionDto dto = sessionMapper.toDto(session);
+
+        assertNotNull(dto);
+        assertNull(dto.getTeacher_id());
+    }
+
+    @Test
+    void testToDto_withNullUsers() {
+        session.setUsers(null);
+
+        SessionDto dto = sessionMapper.toDto(session);
+
+        assertNotNull(dto);
+        assertNotNull(dto.getUsers());
+        assertTrue(dto.getUsers().isEmpty());
+    }
 }
