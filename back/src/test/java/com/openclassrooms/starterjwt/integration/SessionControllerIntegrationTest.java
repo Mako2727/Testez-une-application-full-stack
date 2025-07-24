@@ -70,7 +70,7 @@ class SessionControllerIntegrationTest {
         teacherRepository.deleteAll();
         userRepository.deleteAll();
 
-        // 👤 Créer un user pour l'auth
+        //Créer un user pour l'auth
         User user = new User();
         user.setEmail("yoga1@studio.com");
         user.setPassword(passwordEncoder.encode("test!1234")); // mot de passe: test

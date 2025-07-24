@@ -1,7 +1,6 @@
 package com.openclassrooms.starterjwt.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.openclassrooms.starterjwt.controllers.SessionController;
 import com.openclassrooms.starterjwt.dto.SessionDto;
 import com.openclassrooms.starterjwt.mapper.SessionMapper;
 import com.openclassrooms.starterjwt.models.Session;
@@ -20,7 +19,6 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import java.text.SimpleDateFormat;
 
 class SessionControllerTest {
 
@@ -34,41 +32,59 @@ class SessionControllerTest {
     private SessionController sessionController;
 
     private MockMvc mockMvc;
+    private ObjectMapper objectMapper;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    // Données réutilisées
+    private final Long validSessionId = 1L;
+    private final Long validUserId = 2L;
+    private Session sessionEntity;
+    private SessionDto sessionDto;
+    private SessionDto inputDto;
+    private SessionDto outputDto;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
         mockMvc = MockMvcBuilders.standaloneSetup(sessionController).build();
+        objectMapper = new ObjectMapper();
+
+        // Initialisation objets communs
+        sessionEntity = new Session();
+
+        sessionDto = new SessionDto();
+
+        inputDto = new SessionDto();
+        inputDto.setId(4L);
+        inputDto.setName("session de test");
+        inputDto.setDate(Date.from(OffsetDateTime.parse("2026-07-18T00:00:00.000+00:00").toInstant()));
+        inputDto.setTeacher_id(2L);
+        inputDto.setDescription("Voici le texte de description.");
+        inputDto.setUsers(Collections.emptyList());
+
+        outputDto = new SessionDto();
     }
 
     @Test
     void testFindById_found() throws Exception {
-        Long id = 1L;
-        Session session = new Session();
-        SessionDto dto = new SessionDto();
+        when(sessionService.getById(validSessionId)).thenReturn(sessionEntity);
+        when(sessionMapper.toDto(sessionEntity)).thenReturn(sessionDto);
 
-        when(sessionService.getById(id)).thenReturn(session);
-        when(sessionMapper.toDto(session)).thenReturn(dto);
-
-        mockMvc.perform(get("/api/session/{id}", id))
+        mockMvc.perform(get("/api/session/{id}", validSessionId))
                 .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(dto)));
+                .andExpect(content().json(objectMapper.writeValueAsString(sessionDto)));
 
-        verify(sessionService).getById(id);
-        verify(sessionMapper).toDto(session);
+        verify(sessionService).getById(validSessionId);
+        verify(sessionMapper).toDto(sessionEntity);
     }
 
     @Test
     void testFindById_notFound() throws Exception {
-        Long id = 1L;
-        when(sessionService.getById(id)).thenReturn(null);
+        when(sessionService.getById(validSessionId)).thenReturn(null);
 
-        mockMvc.perform(get("/api/session/{id}", id))
+        mockMvc.perform(get("/api/session/{id}", validSessionId))
                 .andExpect(status().isNotFound());
 
-        verify(sessionService).getById(id);
+        verify(sessionService).getById(validSessionId);
         verifyNoMoreInteractions(sessionMapper);
     }
 
@@ -80,85 +96,65 @@ class SessionControllerTest {
         verifyNoInteractions(sessionService, sessionMapper);
     }
 
-@Test
-void testFindAll() throws Exception {
-    List<Session> sessions = Arrays.asList(new Session());
-    List<SessionDto> dtos = Arrays.asList(new SessionDto());
+    @Test
+    void testFindAll() throws Exception {
+        List<Session> sessions = Collections.singletonList(sessionEntity);
+        List<SessionDto> dtos = Collections.singletonList(sessionDto);
 
-    when(sessionService.findAll()).thenReturn(sessions);
-    when(sessionMapper.toDto(sessions)).thenReturn(dtos);
+        when(sessionService.findAll()).thenReturn(sessions);
+        when(sessionMapper.toDto(sessions)).thenReturn(dtos);
 
-    mockMvc.perform(get("/api/session"))
-            .andExpect(status().isOk())
-            .andExpect(content().json(objectMapper.writeValueAsString(dtos)));
+        mockMvc.perform(get("/api/session"))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(dtos)));
 
-    verify(sessionService).findAll();
-    verify(sessionMapper).toDto(sessions);
-}
+        verify(sessionService).findAll();
+        verify(sessionMapper).toDto(sessions);
+    }
 
     @Test
-void testCreate() throws Exception {
-    SessionDto inputDto = new SessionDto();
-    inputDto.setId(4L);
-    inputDto.setName("session de test");
+    void testCreate() throws Exception {
+        when(sessionMapper.toEntity(inputDto)).thenReturn(sessionEntity);
+        when(sessionService.create(sessionEntity)).thenReturn(sessionEntity);
+        when(sessionMapper.toDto(sessionEntity)).thenReturn(outputDto);
 
-    // Conversion de la date depuis OffsetDateTime en Date
-    OffsetDateTime odt = OffsetDateTime.parse("2026-07-18T00:00:00.000+00:00");
-    Date date = Date.from(odt.toInstant());
-    inputDto.setDate(date);
+        mockMvc.perform(post("/api/session")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(inputDto)))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(outputDto)));
 
-    inputDto.setTeacher_id(2L);
-    inputDto.setDescription("Voici le texte de description.");
-    inputDto.setUsers(Collections.emptyList());
+        verify(sessionMapper).toEntity(inputDto);
+        verify(sessionService).create(sessionEntity);
+        verify(sessionMapper).toDto(sessionEntity);
+    }
 
-    Session entity = new Session();
-    SessionDto outputDto = new SessionDto();
+    @Test
+    void testUpdate_success() throws Exception {
+        SessionDto updateDto = new SessionDto();
+        updateDto.setName("session modifiée");
+        updateDto.setDate(Date.from(OffsetDateTime.parse("2026-07-19T00:00:00.000+00:00").toInstant()));
+        updateDto.setTeacher_id(3L);
+        updateDto.setDescription("Description modifiée");
+        updateDto.setUsers(Collections.emptyList());
 
-    when(sessionMapper.toEntity(inputDto)).thenReturn(entity);
-    when(sessionService.create(entity)).thenReturn(entity);
-    when(sessionMapper.toDto(entity)).thenReturn(outputDto);
+        Session updatedEntity = new Session();
+        SessionDto updatedDto = new SessionDto();
 
-    mockMvc.perform(post("/api/session")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(inputDto)))
-            .andExpect(status().isOk())
-            .andExpect(content().json(objectMapper.writeValueAsString(outputDto)));
+        when(sessionMapper.toEntity(updateDto)).thenReturn(updatedEntity);
+        when(sessionService.update(validSessionId, updatedEntity)).thenReturn(updatedEntity);
+        when(sessionMapper.toDto(updatedEntity)).thenReturn(updatedDto);
 
-    verify(sessionMapper).toEntity(inputDto);
-    verify(sessionService).create(entity);
-    verify(sessionMapper).toDto(entity);
-}
+        mockMvc.perform(put("/api/session/{id}", validSessionId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateDto)))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(updatedDto)));
 
-   @Test
-void testUpdate_success() throws Exception {
-    Long id = 1L;
-    SessionDto inputDto = new SessionDto();
-    inputDto.setName("session modifiée");
-
-    OffsetDateTime odt = OffsetDateTime.parse("2026-07-19T00:00:00.000+00:00");
-    inputDto.setDate(Date.from(odt.toInstant()));
-
-    inputDto.setTeacher_id(3L);
-    inputDto.setDescription("Description modifiée");
-    inputDto.setUsers(Collections.emptyList());
-
-    Session entity = new Session();
-    SessionDto outputDto = new SessionDto();
-
-    when(sessionMapper.toEntity(inputDto)).thenReturn(entity);
-    when(sessionService.update(id, entity)).thenReturn(entity);
-    when(sessionMapper.toDto(entity)).thenReturn(outputDto);
-
-    mockMvc.perform(put("/api/session/{id}", id)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(inputDto)))
-            .andExpect(status().isOk())
-            .andExpect(content().json(objectMapper.writeValueAsString(outputDto)));
-
-    verify(sessionMapper).toEntity(inputDto);
-    verify(sessionService).update(id, entity);
-    verify(sessionMapper).toDto(entity);
-}
+        verify(sessionMapper).toEntity(updateDto);
+        verify(sessionService).update(validSessionId, updatedEntity);
+        verify(sessionMapper).toDto(updatedEntity);
+    }
 
     @Test
     void testUpdate_badRequest() throws Exception {
@@ -172,28 +168,24 @@ void testUpdate_success() throws Exception {
 
     @Test
     void testDelete_success() throws Exception {
-        Long id = 1L;
-        Session session = new Session();
+        when(sessionService.getById(validSessionId)).thenReturn(sessionEntity);
+        doNothing().when(sessionService).delete(validSessionId);
 
-        when(sessionService.getById(id)).thenReturn(session);
-        doNothing().when(sessionService).delete(id);
-
-        mockMvc.perform(delete("/api/session/{id}", id))
+        mockMvc.perform(delete("/api/session/{id}", validSessionId))
                 .andExpect(status().isOk());
 
-        verify(sessionService).getById(id);
-        verify(sessionService).delete(id);
+        verify(sessionService).getById(validSessionId);
+        verify(sessionService).delete(validSessionId);
     }
 
     @Test
     void testDelete_notFound() throws Exception {
-        Long id = 1L;
-        when(sessionService.getById(id)).thenReturn(null);
+        when(sessionService.getById(validSessionId)).thenReturn(null);
 
-        mockMvc.perform(delete("/api/session/{id}", id))
+        mockMvc.perform(delete("/api/session/{id}", validSessionId))
                 .andExpect(status().isNotFound());
 
-        verify(sessionService).getById(id);
+        verify(sessionService).getById(validSessionId);
         verify(sessionService, never()).delete(anyLong());
     }
 
@@ -207,15 +199,12 @@ void testUpdate_success() throws Exception {
 
     @Test
     void testParticipate_success() throws Exception {
-        Long sessionId = 1L;
-        Long userId = 2L;
+        doNothing().when(sessionService).participate(validSessionId, validUserId);
 
-        doNothing().when(sessionService).participate(sessionId, userId);
-
-        mockMvc.perform(post("/api/session/{id}/participate/{userId}", sessionId, userId))
+        mockMvc.perform(post("/api/session/{id}/participate/{userId}", validSessionId, validUserId))
                 .andExpect(status().isOk());
 
-        verify(sessionService).participate(sessionId, userId);
+        verify(sessionService).participate(validSessionId, validUserId);
     }
 
     @Test
@@ -228,15 +217,12 @@ void testUpdate_success() throws Exception {
 
     @Test
     void testNoLongerParticipate_success() throws Exception {
-        Long sessionId = 1L;
-        Long userId = 2L;
+        doNothing().when(sessionService).noLongerParticipate(validSessionId, validUserId);
 
-        doNothing().when(sessionService).noLongerParticipate(sessionId, userId);
-
-        mockMvc.perform(delete("/api/session/{id}/participate/{userId}", sessionId, userId))
+        mockMvc.perform(delete("/api/session/{id}/participate/{userId}", validSessionId, validUserId))
                 .andExpect(status().isOk());
 
-        verify(sessionService).noLongerParticipate(sessionId, userId);
+        verify(sessionService).noLongerParticipate(validSessionId, validUserId);
     }
 
     @Test

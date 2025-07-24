@@ -23,8 +23,7 @@ import java.util.Collections;
 
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 class UserControllerTest {
@@ -40,21 +39,21 @@ class UserControllerTest {
 
     private MockMvc mockMvc;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private ObjectMapper objectMapper;
+
+    private final Long validId = 1L;
+    private User user;
+    private UserDto dto;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
+        objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
-    }
+        mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
 
-    @Test
-    void testFindById_found() throws Exception {
-        Long id = 1L;
-
-        User user = new User();
-        user.setId(id);
+        user = new User();
+        user.setId(validId);
         user.setEmail("user@example.com");
         user.setFirstName("John");
         user.setLastName("Doe");
@@ -62,36 +61,38 @@ class UserControllerTest {
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
 
-        UserDto dto = new UserDto();
-        dto.setId(id);
-        dto.setEmail("user@example.com");
-        dto.setFirstName("John");
-        dto.setLastName("Doe");
-        dto.setAdmin(true);
+        dto = new UserDto();
+        dto.setId(validId);
+        dto.setEmail(user.getEmail());
+        dto.setFirstName(user.getFirstName());
+        dto.setLastName(user.getLastName());
+        dto.setAdmin(user.isAdmin());
         dto.setCreatedAt(user.getCreatedAt());
         dto.setUpdatedAt(user.getUpdatedAt());
+    }
 
-        when(userService.findById(id)).thenReturn(user);
+    @Test
+    void testFindById_found() throws Exception {
+        when(userService.findById(validId)).thenReturn(user);
         when(userMapper.toDto(user)).thenReturn(dto);
 
-        mockMvc.perform(get("/api/user/{id}", id)
-                .accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/api/user/{id}", validId)
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(dto)));
 
-        verify(userService).findById(id);
+        verify(userService).findById(validId);
         verify(userMapper).toDto(user);
     }
 
     @Test
     void testFindById_notFound() throws Exception {
-        Long id = 1L;
-        when(userService.findById(id)).thenReturn(null);
+        when(userService.findById(validId)).thenReturn(null);
 
-        mockMvc.perform(get("/api/user/{id}", id))
+        mockMvc.perform(get("/api/user/{id}", validId))
                 .andExpect(status().isNotFound());
 
-        verify(userService).findById(id);
+        verify(userService).findById(validId);
         verifyNoMoreInteractions(userMapper);
     }
 
@@ -105,14 +106,10 @@ class UserControllerTest {
 
     @Test
     void testDelete_success() throws Exception {
-        Long userId = 1L;
-
-        User user = new User();
-        user.setEmail("user@example.com");
-        when(userService.findById(userId)).thenReturn(user);
+        when(userService.findById(validId)).thenReturn(user);
 
         UserDetails userDetails = mock(UserDetails.class);
-        when(userDetails.getUsername()).thenReturn("user@example.com");
+        when(userDetails.getUsername()).thenReturn(user.getEmail());
         when(userDetails.getAuthorities()).thenReturn(Collections.emptyList());
 
         Authentication authentication = mock(Authentication.class);
@@ -122,59 +119,46 @@ class UserControllerTest {
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
 
-        doNothing().when(userService).delete(userId);
+        doNothing().when(userService).delete(validId);
 
-        mockMvc.perform(delete("/api/user/{id}", userId))
+        mockMvc.perform(delete("/api/user/{id}", validId))
                 .andExpect(status().isOk());
 
-        verify(userService).findById(userId);
-        verify(userService).delete(userId);
+        verify(userService).findById(validId);
+        verify(userService).delete(validId);
     }
 
     @Test
-void testDelete_unauthorized() throws Exception {
-    Long id = 1L;
+    void testDelete_unauthorized() throws Exception {
+        when(userService.findById(validId)).thenReturn(user);
 
-    // Simuler un utilisateur trouvé en base
-    User user = new User();
-    user.setId(id);
-    user.setEmail("user@example.com");
+        UserDetails userDetails = mock(UserDetails.class);
+        when(userDetails.getUsername()).thenReturn("otheruser@example.com"); // utilisateur différent
+        when(userDetails.getAuthorities()).thenReturn(Collections.emptyList());
 
-    when(userService.findById(id)).thenReturn(user);
+        Authentication authentication =
+                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
-    // Simuler l'utilisateur connecté (différent => non autorisé)
-    UserDetails userDetails = mock(UserDetails.class);
-    when(userDetails.getUsername()).thenReturn("otheruser@example.com");
-    when(userDetails.getAuthorities()).thenReturn(Collections.emptyList());
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
 
-    // Construire l'objet Authentication avec les infos mockées
-    Authentication authentication =
-            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.setContext(securityContext);
 
-    // Mock du SecurityContext
-    SecurityContext securityContext = mock(SecurityContext.class);
-    when(securityContext.getAuthentication()).thenReturn(authentication);
+        mockMvc.perform(delete("/api/user/{id}", validId))
+                .andExpect(status().isUnauthorized());
 
-    // Définir le contexte de sécurité avec le mock
-    SecurityContextHolder.setContext(securityContext);
+        verify(userService).findById(validId);
+        verify(userService, never()).delete(anyLong());
+    }
 
-    // Appeler le contrôleur avec une requête DELETE
-    mockMvc.perform(delete("/api/user/{id}", id))
-            .andExpect(status().isUnauthorized());
-
-    // Vérifier les interactions
-    verify(userService).findById(id);
-    verify(userService, never()).delete(anyLong());
-}
     @Test
     void testDelete_notFound() throws Exception {
-        Long id = 1L;
-        when(userService.findById(id)).thenReturn(null);
+        when(userService.findById(validId)).thenReturn(null);
 
-        mockMvc.perform(delete("/api/user/{id}", id))
+        mockMvc.perform(delete("/api/user/{id}", validId))
                 .andExpect(status().isNotFound());
 
-        verify(userService).findById(id);
+        verify(userService).findById(validId);
         verify(userService, never()).delete(anyLong());
     }
 

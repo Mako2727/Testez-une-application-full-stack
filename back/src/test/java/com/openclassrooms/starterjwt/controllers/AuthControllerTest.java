@@ -45,70 +45,81 @@ public class AuthControllerTest {
 
     private MockMvc mockMvc;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private ObjectMapper objectMapper;
+
+    // Données réutilisées
+    private LoginRequest loginRequest;
+    private SignupRequest signupRequest;
+    private Authentication auth;
+    private UserDetailsImpl userDetails;
+    private User user;
 
     @BeforeEach
     void setup() {
         MockitoAnnotations.openMocks(this);
         mockMvc = MockMvcBuilders.standaloneSetup(authController).build();
-    }
+        objectMapper = new ObjectMapper();
 
-    @Test
-    void testAuthenticateUser_success() throws Exception {
-        LoginRequest loginRequest = new LoginRequest();
+        // Objet commun LoginRequest
+        loginRequest = new LoginRequest();
         loginRequest.setEmail("yoga@studio.com");
         loginRequest.setPassword("test!1234");
 
-        Authentication auth = mock(Authentication.class);
-        UserDetailsImpl userDetails = mock(UserDetailsImpl.class);
-        User user = new User("yoga@studio.com", "LastName", "FirstName", "encodedPass", true);
+        // Objet commun SignupRequest
+        signupRequest = new SignupRequest();
+        signupRequest.setEmail("newuser@example.com");
+        signupRequest.setPassword("password");
+        signupRequest.setFirstName("FirstName");
+        signupRequest.setLastName("LastName");
 
-        when(authenticationManager.authenticate(any())).thenReturn(auth);
-        when(auth.getPrincipal()).thenReturn(userDetails);
-        when(jwtUtils.generateJwtToken(auth)).thenReturn("fake-jwt-token");
+        // Mocks communs
+        auth = mock(Authentication.class);
+        userDetails = mock(UserDetailsImpl.class);
+
+        user = new User("yoga@studio.com", "LastName", "FirstName", "encodedPass", true);
+
+        // Configuration mocks userDetails
         when(userDetails.getUsername()).thenReturn("yoga@studio.com");
         when(userDetails.getId()).thenReturn(1L);
         when(userDetails.getFirstName()).thenReturn("FirstName");
         when(userDetails.getLastName()).thenReturn("LastName");
+    }
+
+    @Test
+    void testAuthenticateUser_success() throws Exception {
+        when(authenticationManager.authenticate(any())).thenReturn(auth);
+        when(auth.getPrincipal()).thenReturn(userDetails);
+        when(jwtUtils.generateJwtToken(auth)).thenReturn("fake-jwt-token");
         when(userRepository.findByEmail("yoga@studio.com")).thenReturn(Optional.of(user));
 
         mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(loginRequest)))
-      .andExpect(status().isOk())
-        .andExpect(jsonPath("$.token").value("fake-jwt-token"))
-        .andExpect(jsonPath("$.id").value(1))
-        .andExpect(jsonPath("$.username").value("yoga@studio.com"))
-        .andExpect(jsonPath("$.firstName").value("FirstName"))
-        .andExpect(jsonPath("$.lastName").value("LastName"))
-        .andExpect(jsonPath("$.admin").value(true));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").value("fake-jwt-token"))
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.username").value("yoga@studio.com"))
+                .andExpect(jsonPath("$.firstName").value("FirstName"))
+                .andExpect(jsonPath("$.lastName").value("LastName"))
+                .andExpect(jsonPath("$.admin").value(true));
     }
 
     @Test
     void testRegisterUser_emailTaken() throws Exception {
-        SignupRequest signupRequest = new SignupRequest();
-        signupRequest.setEmail("yoga@studio.com");
-        signupRequest.setPassword("password");
-        signupRequest.setFirstName("FirstName");
-        signupRequest.setLastName("LastName");
+        signupRequest.setEmail("yoga@studio.com"); // Email déjà pris
 
         when(userRepository.existsByEmail("yoga@studio.com")).thenReturn(true);
 
         mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(signupRequest)))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.message").value("Error: Email is already taken!"));
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Error: Email is already taken!"));
     }
 
     @Test
     void testRegisterUser_success() throws Exception {
-        SignupRequest signupRequest = new SignupRequest();
-        signupRequest.setEmail("newuser@example.com");
-        signupRequest.setPassword("password");
-        signupRequest.setFirstName("FirstName");
-        signupRequest.setLastName("LastName");
-
+        signupRequest.setEmail("newuser@example.com"); // Email nouveau
         when(userRepository.existsByEmail("newuser@example.com")).thenReturn(false);
         when(passwordEncoder.encode("password")).thenReturn("encodedPassword");
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -116,7 +127,7 @@ public class AuthControllerTest {
         mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(signupRequest)))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.message").value("User registered successfully!"));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("User registered successfully!"));
     }
 }

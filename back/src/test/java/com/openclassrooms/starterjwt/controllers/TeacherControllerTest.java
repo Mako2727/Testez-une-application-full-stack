@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -34,55 +33,82 @@ class TeacherControllerTest {
     private TeacherController teacherController;
 
     private MockMvc mockMvc;
+    private ObjectMapper objectMapper;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    // Variables réutilisées
+    private final Long validId = 1L;
+    private Teacher teacher1;
+    private Teacher teacher2;
+    private TeacherDto dto1;
+    private TeacherDto dto2;
+    private List<Teacher> teachers;
+    private List<TeacherDto> dtos;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         mockMvc = MockMvcBuilders.standaloneSetup(teacherController).build();
+
+        // Initialisation des objets communs
+        teacher1 = Teacher.builder()
+                .id(1L)
+                .firstName("John")
+                .lastName("Doe")
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+
+        teacher2 = Teacher.builder()
+                .id(2L)
+                .firstName("Jane")
+                .lastName("Smith")
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+
+        teachers = Arrays.asList(teacher1, teacher2);
+
+        dto1 = new TeacherDto();
+        dto1.setId(teacher1.getId());
+        dto1.setFirstName(teacher1.getFirstName());
+        dto1.setLastName(teacher1.getLastName());
+        dto1.setCreatedAt(teacher1.getCreatedAt());
+        dto1.setUpdatedAt(teacher1.getUpdatedAt());
+
+        dto2 = new TeacherDto();
+        dto2.setId(teacher2.getId());
+        dto2.setFirstName(teacher2.getFirstName());
+        dto2.setLastName(teacher2.getLastName());
+        dto2.setCreatedAt(teacher2.getCreatedAt());
+        dto2.setUpdatedAt(teacher2.getUpdatedAt());
+
+        dtos = Arrays.asList(dto1, dto2);
     }
 
     @Test
     void testFindById_found() throws Exception {
-        Long id = 1L;
-        Teacher teacher = Teacher.builder()
-                .id(id)
-                .firstName("John")
-                .lastName("Doe")
-                .createdAt(LocalDateTime.of(2025, 7, 13, 23, 23, 23))
-                .updatedAt(LocalDateTime.of(2025, 7, 13, 23, 23, 23))
-                .build();
+        when(teacherService.findById(validId)).thenReturn(teacher1);
+        when(teacherMapper.toDto(teacher1)).thenReturn(dto1);
 
-        TeacherDto dto = new TeacherDto();
-        dto.setId(id);
-        dto.setFirstName("John");
-        dto.setLastName("Doe");
-        dto.setCreatedAt(teacher.getCreatedAt());
-        dto.setUpdatedAt(teacher.getUpdatedAt());
-
-        when(teacherService.findById(id)).thenReturn(teacher);
-        when(teacherMapper.toDto(teacher)).thenReturn(dto);
-
-        mockMvc.perform(get("/api/teacher/{id}", id)
+        mockMvc.perform(get("/api/teacher/{id}", validId)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(dto)));
+                .andExpect(content().json(objectMapper.writeValueAsString(dto1)));
 
-        verify(teacherService).findById(id);
-        verify(teacherMapper).toDto(teacher);
+        verify(teacherService).findById(validId);
+        verify(teacherMapper).toDto(teacher1);
     }
 
     @Test
     void testFindById_notFound() throws Exception {
-        Long id = 1L;
-        when(teacherService.findById(id)).thenReturn(null);
+        when(teacherService.findById(validId)).thenReturn(null);
 
-        mockMvc.perform(get("/api/teacher/{id}", id))
+        mockMvc.perform(get("/api/teacher/{id}", validId))
                 .andExpect(status().isNotFound());
 
-        verify(teacherService).findById(id);
+        verify(teacherService).findById(validId);
         verifyNoMoreInteractions(teacherMapper);
     }
 
@@ -96,40 +122,6 @@ class TeacherControllerTest {
 
     @Test
     void testFindAll() throws Exception {
-        Teacher teacher1 = Teacher.builder()
-                .id(1L)
-                .firstName("John")
-                .lastName("Doe")
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .build();
-
-        Teacher teacher2 = Teacher.builder()
-                .id(2L)
-                .firstName("Jane")
-                .lastName("Smith")
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .build();
-
-        List<Teacher> teachers = Arrays.asList(teacher1, teacher2);
-
-        TeacherDto dto1 = new TeacherDto();
-        dto1.setId(1L);
-        dto1.setFirstName("John");
-        dto1.setLastName("Doe");
-        dto1.setCreatedAt(teacher1.getCreatedAt());
-        dto1.setUpdatedAt(teacher1.getUpdatedAt());
-
-        TeacherDto dto2 = new TeacherDto();
-        dto2.setId(2L);
-        dto2.setFirstName("Jane");
-        dto2.setLastName("Smith");
-        dto2.setCreatedAt(teacher2.getCreatedAt());
-        dto2.setUpdatedAt(teacher2.getUpdatedAt());
-
-        List<TeacherDto> dtos = Arrays.asList(dto1, dto2);
-
         when(teacherService.findAll()).thenReturn(teachers);
         when(teacherMapper.toDto(teachers)).thenReturn(dtos);
 
