@@ -1,19 +1,27 @@
-/// <reference types="cypress" />
+describe('Test register via interface Angular', () => {
+  beforeEach(() => {
+    // Interception POST register avec une réponse d'erreur simulée
+    cy.intercept('POST', '/api/auth/register', {
+      statusCode: 400,
+      body: { message: 'Erreur lors de l\'inscription' }
+    }).as('register');
+  });
 
-describe('Test login via interface Angular', () => {
-  it('doit se connecter via le formulaire Angular', () => {
-    cy.intercept('GET', '/api/session').as('getSession');
+  it('doit afficher une erreur lors de l\'inscription', () => {
     cy.visit('http://localhost:4200/');
 
-     cy.get('span.link[routerlink="register"]').click();
+    cy.get('span.link[routerlink="register"]').click();
 
-    // Adapte les sélecteurs aux noms de tes champs
     cy.get('input[formcontrolname="firstName"]').click().type('yoga');
     cy.get('input[formcontrolname="lastName"]').click().type('studio');
-      cy.get('input[formcontrolname="email"]').click().type('yoga@studio.com');
-   cy.get('input[formcontrolname="password"]').click().type('test!1234');
+    cy.get('input[formcontrolname="email"]').click().type('yoga@studio.com');
+    cy.get('input[formcontrolname="password"]').click().type('test!1234');
     cy.get('button[type="submit"]').click();
-    // Vérifie que tu es bien connecté (ex. présence d’un élément de dashboard)
+
+    // On attend que la requête register mockée soit terminée
+    cy.wait('@register');
+
+    // Vérifie que le message d'erreur s'affiche
     cy.contains('An error occurred').should('exist');
   });
 });

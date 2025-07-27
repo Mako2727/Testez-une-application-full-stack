@@ -13,6 +13,7 @@ import { fakeAsync, tick } from '@angular/core/testing';
 
 import { MeComponent } from './me.component';
 import { User } from '../../interfaces/user.interface';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 
 describe('MeComponent', () => {
   let component: MeComponent;
@@ -103,5 +104,49 @@ describe('MeComponent', () => {
     );
     expect(mockSessionService.logOut).toHaveBeenCalled();
     expect(mockRouter.navigate).toHaveBeenCalledWith(['/']);
+  });
+});
+
+describe('MeComponent - Integration Test', () => {
+  let fixture: ComponentFixture<MeComponent>;
+  let component: MeComponent;
+  let httpMock: HttpTestingController; // <--- bien déclaré ici
+  let router: Router;
+  let snackBar: MatSnackBar;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [MeComponent],
+      imports: [
+        HttpClientTestingModule,
+        MatCardModule,
+        MatFormFieldModule,
+        MatIconModule,
+        MatInputModule,
+        MatSnackBarModule
+      ],
+      providers: [
+        SessionService,
+        UserService,
+        MatSnackBar,
+        Router
+      ]
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(MeComponent);
+    component = fixture.componentInstance;
+    httpMock = TestBed.inject(HttpTestingController); // <--- injection ici
+    router = TestBed.inject(Router);
+    snackBar = TestBed.inject(MatSnackBar);
+
+    jest.spyOn(router, 'navigate');
+    jest.spyOn(snackBar, 'open');
+    fixture.detectChanges();
+  });
+
+  // tes tests ...
+
+  afterEach(() => {
+    httpMock.verify(); // <--- ici il doit être défini
   });
 });

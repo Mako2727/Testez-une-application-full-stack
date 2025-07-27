@@ -1,5 +1,5 @@
 import { HttpClientModule } from '@angular/common/http';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { ReactiveFormsModule,FormBuilder } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -15,6 +15,7 @@ import { Router } from '@angular/router';
 
 
 import { LoginComponent } from './login.component';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
@@ -82,5 +83,77 @@ describe('LoginComponent', () => {
     component.submit();
 
     expect(component.onError).toBe(true);
+  });
+});
+
+describe('LoginComponent - Integration Test', () => {
+  let fixture: ComponentFixture<LoginComponent>;
+  let component: LoginComponent;
+  let httpMock: HttpTestingController;
+  let router: Router;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [LoginComponent],
+      imports: [
+        ReactiveFormsModule,
+        HttpClientTestingModule, // Important pour mocker HTTPClient
+        RouterTestingModule,
+        MatCardModule,
+        MatFormFieldModule,
+        MatIconModule,
+        MatInputModule,
+        BrowserAnimationsModule
+      ],
+      providers: [
+        FormBuilder
+      ]
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(LoginComponent);
+    component = fixture.componentInstance;
+    router = TestBed.inject(Router);
+    httpMock = TestBed.inject(HttpTestingController);
+
+    jest.spyOn(router, 'navigate'); // espionner la navigation
+    fixture.detectChanges();
+  });
+
+  it('should send HTTP POST and navigate on success', fakeAsync(() => {
+    component.form.setValue({ email: 'test@example.com', password: '1234' });
+
+    component.submit();
+
+    const req = httpMock.expectOne('api/auth/login');
+    expect(req.request.method).toBe('POST');
+
+    const mockResponse = { token: 'abc123', userId: 1 };
+    req.flush(mockResponse);
+
+    tick();
+    fixture.detectChanges();
+
+    expect(component.onError).toBe(false);
+    expect(router.navigate).toHaveBeenCalledWith(['/sessions']);
+  }));
+
+  it('should set onError to true on HTTP error', fakeAsync(() => {
+    component.form.setValue({ email: 'test@example.com', password: '1234' });
+
+    component.submit();
+
+    const req = httpMock.expectOne('api/auth/login');
+    expect(req.request.method).toBe('POST');
+
+    req.flush('Error', { status: 401, statusText: 'Unauthorized' });
+
+    tick();
+    fixture.detectChanges();
+
+    expect(component.onError).toBe(true);
+  }));
+
+  afterEach(() => {
+    httpMock.verify(); // Vérifie qu’aucune requête HTTP non consommée n’existe
   });
 });

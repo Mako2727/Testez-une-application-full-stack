@@ -57,3 +57,48 @@ describe('UserService', () => {
     req.flush({ success: true });
   });
 });
+
+describe('UserService Integration', () => {
+  let service: UserService;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [HttpClientModule],  // On utilise HttpClientModule réel, pas HttpClientTestingModule
+      providers: [UserService]
+    });
+
+    service = TestBed.inject(UserService);
+  });
+
+  it('should be created', () => {
+    expect(service).toBeTruthy();
+  });
+
+  it('should get user by id from real backend', (done) => {
+    service.getById('1').subscribe({
+      next: (user: User) => {
+        expect(user).toBeTruthy();
+        expect(user.id).toBe(1);
+        done();
+      },
+      error: (error) => {
+        // si backend non disponible, on peut échouer ou ignorer
+        fail('Backend non accessible: ' + error.message);
+        done();
+      }
+    });
+  });
+
+  it('should delete user by id on real backend', (done) => {
+    service.delete('1').subscribe({
+      next: (response) => {
+        expect(response).toBeTruthy();
+        done();
+      },
+      error: (error) => {
+        fail('Backend non accessible: ' + error.message);
+        done();
+      }
+    });
+  });
+});

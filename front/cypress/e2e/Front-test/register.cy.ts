@@ -1,23 +1,30 @@
-/// <reference types="cypress" />
+describe('Test register via interface Angular', () => {
+  beforeEach(() => {
+    // Mock de la requête POST register pour simuler une inscription réussie
+    cy.intercept('POST', '/api/auth/register', {
+      statusCode: 200,
+      body: { message: 'User registered successfully' }
+    }).as('register');
+  });
 
-describe('Test login via interface Angular', () => {
-  it('doit se connecter via le formulaire Angular', () => {
-
+  it('doit s’inscrire puis revenir sur la page login', () => {
     const uniqueEmail = `test_${Date.now()}@123.fr`;
-    cy.intercept('GET', '/api/session').as('getSession');
+
     cy.visit('http://localhost:4200/');
 
-     cy.get('span.link[routerlink="register"]').click();
+    cy.get('span.link[routerlink="register"]').click();
 
-    // Adapte les sélecteurs aux noms de tes champs
     cy.get('input[formcontrolname="firstName"]').click().type('yoga');
     cy.get('input[formcontrolname="lastName"]').click().type('studio');
-      cy.get('input[formcontrolname="email"]').click().type(uniqueEmail);
-   cy.get('input[formcontrolname="password"]').click().type('test!1234');
-    cy.get('button[type="submit"]').click();
-    // je verifie que je reviens bien sur la page login 
+    cy.get('input[formcontrolname="email"]').click().type(uniqueEmail);
+    cy.get('input[formcontrolname="password"]').click().type('test!1234');
 
-     // Ici on vérifie que l’URL contient /admin
+    cy.get('button[type="submit"]').click();
+
+    // On attend la fin de la requête mockée d’inscription
+    cy.wait('@register');
+
+    // Vérifie que l’URL contient /login (redirection vers login après inscription)
     cy.url().should('include', '/login');
   });
 });
