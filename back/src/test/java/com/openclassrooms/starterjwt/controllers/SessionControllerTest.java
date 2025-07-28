@@ -9,16 +9,30 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.time.OffsetDateTime;
 import java.util.*;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import com.openclassrooms.starterjwt.dto.SessionDto;
+import com.openclassrooms.starterjwt.mapper.SessionMapper;
+import com.openclassrooms.starterjwt.models.Session;
+import com.openclassrooms.starterjwt.services.SessionService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.*;
+import org.springframework.http.ResponseEntity;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class SessionControllerTest {
 
@@ -232,4 +246,50 @@ class SessionControllerTest {
 
         verifyNoInteractions(sessionService);
     }
+
+     @Test
+    void update_validId_shouldReturnUpdatedSessionDto() {
+        String id = "123";
+
+        SessionDto inputDto = new SessionDto();
+        // set fields on inputDto if needed
+
+        Session sessionEntity = new Session();
+        // set fields on sessionEntity if needed
+
+        Session updatedSession = new Session();
+        // set fields on updatedSession if needed
+
+        SessionDto updatedDto = new SessionDto();
+        // set fields on updatedDto if needed
+
+        when(sessionMapper.toEntity(inputDto)).thenReturn(sessionEntity);
+        when(sessionService.update(123L, sessionEntity)).thenReturn(updatedSession);
+        when(sessionMapper.toDto(updatedSession)).thenReturn(updatedDto);
+
+        ResponseEntity<?> response = sessionController.update(id, inputDto);
+
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(updatedDto, response.getBody());
+
+        verify(sessionMapper).toEntity(inputDto);
+        verify(sessionService).update(123L, sessionEntity);
+        verify(sessionMapper).toDto(updatedSession);
+    }
+
+    @Test
+    void update_invalidId_shouldReturnBadRequest() {
+        String invalidId = "abc";
+
+        SessionDto inputDto = new SessionDto();
+
+        ResponseEntity<?> response = sessionController.update(invalidId, inputDto);
+
+        assertEquals(400, response.getStatusCodeValue());
+
+        verifyNoInteractions(sessionService);
+        verifyNoInteractions(sessionMapper);
+    }
+
 }
+

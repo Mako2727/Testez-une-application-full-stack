@@ -59,4 +59,25 @@ void testEquals() {
     assertNotEquals(user1, null);
     assertNotEquals(user1, "some string");
 }
+
+    @Test
+    void testUserDetailsImplBuilderToString() {
+        UserDetailsImpl.UserDetailsImplBuilder builder = UserDetailsImpl.builder()
+            .id(123L)
+            .username("user@example.com")
+            .firstName("John")
+            .lastName("Doe")
+            .admin(true)
+            .password("secret");
+
+        String toStringResult = builder.toString();
+
+        assertNotNull(toStringResult);
+        assertTrue(toStringResult.contains("id=123"));
+        assertTrue(toStringResult.contains("username=user@example.com"));
+        assertTrue(toStringResult.contains("firstName=John"));
+        assertTrue(toStringResult.contains("lastName=Doe"));
+        assertTrue(toStringResult.contains("admin=true"));
+        assertTrue(toStringResult.contains("password=secret"));
+    }
 }
