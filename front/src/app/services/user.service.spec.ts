@@ -60,45 +60,54 @@ describe('UserService', () => {
 
 describe('UserService Integration', () => {
   let service: UserService;
+  let httpMock: HttpTestingController;
+
+  const dummyUser: User = {
+    id: 1,
+    firstName: 'John',
+    lastName: 'Doe',
+    email: 'john.doe@example.com',
+    admin: false,
+    password: 'hashedpassword',
+    createdAt: new Date('2025-07-14T00:00:00Z'),
+    updatedAt: new Date('2025-07-15T00:00:00Z')
+  };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientModule],  // On utilise HttpClientModule réel, pas HttpClientTestingModule
+      imports: [HttpClientTestingModule], 
       providers: [UserService]
     });
 
     service = TestBed.inject(UserService);
+    httpMock = TestBed.inject(HttpTestingController); 
+  });
+
+  afterEach(() => {
+    httpMock.verify(); 
   });
 
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should get user by id from real backend', (done) => {
-    service.getById('1').subscribe({
-      next: (user: User) => {
-        expect(user).toBeTruthy();
-        expect(user.id).toBe(1);
-        done();
-      },
-      error: (error) => {
-        // si backend non disponible, on peut échouer ou ignorer
-        fail('Backend non accessible: ' + error.message);
-        done();
-      }
+  it('should get user by id from fake backend', () => {
+    service.getById('1').subscribe((user: User) => {
+      expect(user).toEqual(dummyUser);
     });
+
+    const req = httpMock.expectOne('api/user/1'); 
+    expect(req.request.method).toBe('GET');
+    req.flush(dummyUser); 
   });
 
-  it('should delete user by id on real backend', (done) => {
-    service.delete('1').subscribe({
-      next: (response) => {
-        expect(response).toBeTruthy();
-        done();
-      },
-      error: (error) => {
-        fail('Backend non accessible: ' + error.message);
-        done();
-      }
+  it('should delete user by id from fake backend', () => {
+    service.delete('1').subscribe((response) => {
+      expect(response).toBeTruthy();
     });
+
+    const req = httpMock.expectOne('api/user/1');
+    expect(req.request.method).toBe('DELETE');
+    req.flush({ success: true });
   });
 });

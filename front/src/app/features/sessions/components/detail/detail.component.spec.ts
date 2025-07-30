@@ -151,17 +151,7 @@ it('should delete session and navigate', fakeAsync(() => {
     expect(mockSessionApiService.detail).toHaveBeenCalled();
   }));
 
-/*
-it('should not crash if delete fails', fakeAsync(() => {
-  jest.spyOn(console, 'error').mockImplementation(() => {}); // ignore log d'erreur
-  mockSessionApiService.delete.mockReturnValueOnce(
-    throwError(new Error('Delete failed'))  // ✅ version compatible
-  );
-  component.delete();
-  tick();
-  expect(true).toBe(true);
-}));
-*/
+
 it('should set isParticipate to false if user not in session users', fakeAsync(() => {
   mockSessionApiService.detail.mockReturnValueOnce(of({
     id: 123,
@@ -177,5 +167,151 @@ it('should set isParticipate to false if user not in session users', fakeAsync((
 
   expect(component.isParticipate).toBe(false);
 }));
+
+});
+
+describe('DetailComponent avec services mockés', () => {
+  let component: DetailComponent;
+  let fixture: ComponentFixture<DetailComponent>;
+
+  // Mocks des services avec des méthodes jest.fn()
+  const mockSessionService = {
+    sessionInformation: { id: 1, admin: true }
+  };
+
+  const mockSessionApiService = {
+    detail: jest.fn(),
+    delete: jest.fn(),
+    participate: jest.fn(),
+    unParticipate: jest.fn()
+  };
+
+  const mockTeacherService = {
+    detail: jest.fn()
+  };
+
+  const mockRouter = {
+    navigate: jest.fn()
+  };
+
+  const mockActivatedRoute = {
+    snapshot: {
+      paramMap: {
+        get: jest.fn(() => '123')
+      }
+    }
+  };
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      declarations: [DetailComponent],
+      imports: [
+        // Modules Angular nécessaires
+        BrowserAnimationsModule,
+        MatSnackBarModule,
+        RouterTestingModule,
+        ReactiveFormsModule,
+        MatIconModule,
+        MatCardModule,
+        NoopAnimationsModule
+      ],
+      providers: [
+        { provide: SessionService, useValue: mockSessionService },
+        { provide: SessionApiService, useValue: mockSessionApiService },
+        { provide: TeacherService, useValue: mockTeacherService },
+        { provide: Router, useValue: mockRouter },
+        { provide: ActivatedRoute, useValue: mockActivatedRoute }
+      ]
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(DetailComponent);
+    component = fixture.componentInstance;
+
+    // Définir les retours mockés par défaut pour les méthodes
+    mockSessionApiService.detail.mockReturnValue(of({
+      id: 123,
+      name: 'Session Test',
+      description: 'Description de test',
+      date: new Date(),
+      teacher_id: 1,
+      users: [1]
+    }));
+
+    mockTeacherService.detail.mockReturnValue(of({
+      id: 1,
+      firstName: 'John',
+      lastName: 'Doe',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }));
+
+    mockSessionApiService.delete.mockReturnValue(of({}));
+    mockSessionApiService.participate.mockReturnValue(of(void 0));
+    mockSessionApiService.unParticipate.mockReturnValue(of(void 0));
+
+    fixture.detectChanges();
+  });
+
+  it('doit créer le composant', () => {
+    expect(component).toBeTruthy();
+  });
+
+  it('doit récupérer la session et le professeur au démarrage', fakeAsync(() => {
+    component.ngOnInit();
+    tick();
+    expect(mockSessionApiService.detail).toHaveBeenCalledWith('123');
+    expect(component.session).toBeDefined();
+    expect(component.isParticipate).toBe(true);
+    expect(mockTeacherService.detail).toHaveBeenCalledWith('1');
+    expect(component.teacher).toBeDefined();
+  }));
+
+  it('doit appeler window.history.back()', () => {
+    jest.spyOn(window.history, 'back');
+    component.back();
+    expect(window.history.back).toHaveBeenCalled();
+  });
+
+  it('doit supprimer la session et naviguer', fakeAsync(() => {
+    const snackBarSpy = jest.spyOn(component['matSnackBar'], 'open');
+
+    component.delete();
+    tick();
+    flush();
+
+    expect(mockSessionApiService.delete).toHaveBeenCalledWith('123');
+    expect(snackBarSpy).toHaveBeenCalledWith('Session deleted !', 'Close', { duration: 3000 });
+    expect(mockRouter.navigate).toHaveBeenCalledWith(['sessions']);
+  }));
+
+  it('doit participer à la session et rafraîchir', fakeAsync(() => {
+    component.participate();
+    tick();
+    expect(mockSessionApiService.participate).toHaveBeenCalledWith('123', '1');
+    expect(mockSessionApiService.detail).toHaveBeenCalled();
+  }));
+
+  it('doit se désinscrire de la session et rafraîchir', fakeAsync(() => {
+    component.unParticipate();
+    tick();
+    expect(mockSessionApiService.unParticipate).toHaveBeenCalledWith('123', '1');
+    expect(mockSessionApiService.detail).toHaveBeenCalled();
+  }));
+
+  it('doit définir isParticipate à false si l’utilisateur n’est pas dans la session', fakeAsync(() => {
+    mockSessionApiService.detail.mockReturnValueOnce(of({
+      id: 123,
+      name: 'Session Test',
+      description: 'Description',
+      date: new Date(),
+      teacher_id: 1,
+      users: [2, 3] // L’ID 1 n’est pas dans la liste
+    }));
+
+    component.ngOnInit();
+    tick();
+
+    expect(component.isParticipate).toBe(false);
+  }));
 
 });
