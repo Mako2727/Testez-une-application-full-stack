@@ -1,3 +1,4 @@
+/// <reference types="cypress" />
 describe('Test login mock simple', () => {
   beforeEach(() => {
     cy.intercept('POST', '/api/auth/login', {

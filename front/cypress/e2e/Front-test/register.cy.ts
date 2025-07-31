@@ -1,3 +1,4 @@
+/// <reference types="cypress" />
 describe('Test register via interface Angular', () => {
   beforeEach(() => {
     // Mock de la requête POST register pour simuler une inscription réussie

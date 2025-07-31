@@ -1,3 +1,4 @@
+/// <reference types="cypress" />
 describe('Test register via interface Angular', () => {
   beforeEach(() => {
     // Interception POST register avec une réponse d'erreur simulée

@@ -21,7 +21,8 @@
     "lib": [
       "es2020",
       "dom"
-    ]
+    ],
+       "types": ["cypress", "node", "jest"] 
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
