@@ -6,23 +6,24 @@ describe('Test login via interface Angular', () => {
       statusCode: 200,
       body: {
         token: 'fake-jwt-token',
-        userId: 1
+        id: 1
       }
     }).as('login');
 
+    
     cy.intercept('GET', '/api/user/1', {
       statusCode: 200,
       body: {
         id: 1,
-        email: 'yoga@studio.com',
-        firstName: 'John',
-        lastName: 'Doe',
+        username: 'userName',
+        firstName: 'firstName',
+        lastName: 'lastName',
         admin: true,
-        password: '',
-        createdAt: '2023-01-01T00:00:00.000Z',
-        updatedAt: '2023-01-02T00:00:00.000Z'
+        email: 'yoga@studio.com'
       }
-    }).as('getUser');
+    }).as('getUserById');
+
+
 
     cy.intercept('GET', '/api/session', {
       statusCode: 200,
@@ -42,7 +43,8 @@ describe('Test login via interface Angular', () => {
     cy.url().should('include', '/sessions');
 
     cy.get('span[routerlink="me"]').should('be.visible').click();
-
-    cy.url().should('include', '/me');
+   cy.wait('@getUserById');
+   
+    
   });
 });

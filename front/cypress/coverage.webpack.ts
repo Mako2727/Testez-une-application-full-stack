@@ -1,19 +1,20 @@
-import type { Configuration } from 'webpack';
+import * as path from 'path';
 
-const webpackConfig: Configuration = {
+export default {
   module: {
     rules: [
       {
-        test: /\.[jt]s$/,
-        exclude: /(node_modules|\.spec\.ts$)/,
-       use: {
-  loader: '@jsdevtools/coverage-istanbul-loader',
-  options: { esModules: true }
-},
-        enforce: 'post'
-      }
-    ]
-  }
+        test: /\.(js|ts)$/,
+        loader: '@jsdevtools/coverage-istanbul-loader',
+        options: { esModules: true },
+        enforce: 'post',
+        include: path.join(__dirname, '..', 'src'),
+        exclude: [
+          /\.(e2e|spec)\.ts$/,
+          /node_modules/,
+          /(ngfactory|ngstyle)\.js/,
+        ],
+      },
+    ],
+  },
 };
-console.log('Webpack instrumentation active');
-export default webpackConfig;
