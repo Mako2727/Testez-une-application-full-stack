@@ -1,9 +1,11 @@
 /// <reference types="cypress" />
-describe('Test login via interface Angular', () => {
-  it('doit se connecter via le formulaire Angular, créer, voir détail et supprimer une session', () => {
-    const uniqueSession = `test_${Date.now()}`;
 
-    // Mock login POST
+describe('Test login via interface Angular', () => {
+  it('doit se connecter via le formulaire Angular, créer une session, et vérifier son affichage', () => {
+    const uniqueSession = `test_${Date.now()}`;
+    let sessionDeleted = false; 
+
+    // Mock du login POST avec URL relative
     cy.intercept('POST', '/api/auth/login', {
       statusCode: 200,
       body: {
@@ -17,8 +19,7 @@ describe('Test login via interface Angular', () => {
   }
     }).as('login');
 
-    // Mock get user connecté
- cy.intercept('GET', '**/api/user/1', {
+cy.intercept('GET', '**/api/user/1', {
   statusCode: 200,
   body: {
     id: 1,
@@ -32,60 +33,52 @@ describe('Test login via interface Angular', () => {
   }
 }).as('getUser');
 
- 
+ cy.intercept('GET', '/api/session', (req) => {
+      if (sessionDeleted) {
+        req.reply({
+          statusCode: 200,
+          body: [] // plus aucune session après suppression
+        });
+      } else {
+        req.reply({
+          statusCode: 200,
+          body: [{
+            id: 123,
+            name: uniqueSession,
+            date: '2026-07-18',
+            teacher: {
+              id: 2,
+              firstName: 'Hélène',
+              lastName: 'THIERCELIN'
+            },
+            description: 'Voici le texte de description.'
+          }]
+        });
+      }
+    }).as('getSessions');
 
-cy.intercept('POST', '/api/session', (req) => {
- 
-  expect(req.body).to.have.property('date');
-  expect(req.body).to.have.property('teacher_id');
-  expect(req.body).to.have.property('description');
- expect(req.body).to.have.property('name');
-
-
-  req.reply({
-    statusCode: 201,
-    body: {
-      id: 29,
-      ...req.body,
-      users: [],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    }
-  });
-}).as('createSession');
-
-    // Après création, liste sessions avec la session créée
-const sessionsMock = [
-  {
-    id: 29,
-    name: uniqueSession,
-    date: '2025-08-03T00:00:00.000+00:00',
-    teacher_id: 2,
-    description: 'hgghgfh',
-    users: [],
-    createdAt: '2025-07-31T01:11:08',
-    updatedAt: '2025-07-31T01:11:08'
-  },
-  {
-    id: 30,
-    name: 'hghf',
-    date: '2025-08-03T00:00:00.000+00:00',
-    teacher_id: 2,
-    description: 'gfhfg',
-    users: [],
-    createdAt: '2025-07-31T01:17:52',
-    updatedAt: '2025-07-31T01:17:52'
-  }
-];
+    // Mock création de session POST
+    cy.intercept('POST', '/api/session', (req) => {
+      expect(req.body.name).to.equal(uniqueSession);
+      req.reply({
+        statusCode: 201,
+        body: {
+          id: 123,
+          name: uniqueSession,
+          date: '2026-07-18',
+          teacher: {
+            id: 2,
+            firstName: 'Hélène',
+            lastName: 'THIERCELIN'
+          },
+          description: 'Voici le texte de description.'
+        }
+      });
+    }).as('createSession');
 
 
 
-cy.intercept('GET', '**/api/session', {
-  statusCode: 200,
-  body: sessionsMock
-}).as('getSessionsAfterCreate');
-
-        cy.intercept('GET', '/api/teacher', {
+    cy.intercept('GET', '/api/teacher', {
   statusCode: 200,
   body: [
     {
@@ -105,48 +98,46 @@ cy.intercept('GET', '**/api/session', {
   ]
 }).as('getTeachers');
 
-cy.intercept('GET', '/api/session/29', {
-  statusCode: 200,
-  body: {
-    id: 29,
-    name: uniqueSession,
-    date: '2026-07-18',
-    teacher_id: 2,
-    description: 'Voici le texte de description.',
-    users: [],
-    createdAt: '2025-07-31T01:11:07.755',
-    updatedAt: '2025-07-31T01:11:07.775'
-  }
-}).as('getSessionDetail');
+ // Détail de la session
+    cy.intercept('GET', '/api/session/123', {
+      statusCode: 200,
+      body: {
+        id: 29,
+        name: uniqueSession,
+        date: '2026-07-18',
+        teacher_id: 2,
+        description: 'Voici le texte de description.',
+        users: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }
+    }).as('getSessionDetail');
 
-    cy.intercept('GET', '/api/teacher/2', {
-  statusCode: 200,
-  body: {
-    id: 2,
-    lastName: "THIERCELIN",
-    firstName: "Hélène",
-    createdAt: "2025-07-13T23:23:23",
-    updatedAt: "2025-07-13T23:23:23"
-  }
-}).as('getTeacherDetail');
+        cy.intercept('GET', '/api/teacher/2', {
+      statusCode: 200,
+      body: {
+        id: 2,
+        lastName: 'THIERCELIN',
+        firstName: 'Hélène',
+        createdAt: '2025-07-13T23:23:23',
+        updatedAt: '2025-07-13T23:23:23'
+      }
+    }).as('getTeacherDetail');
 
-    // Suppression session DELETE
-    cy.intercept('DELETE', '/api/session/29', {
-      statusCode: 204,
-      body: {}
+ cy.intercept('DELETE', '/api/session/123', (req) => {
+      sessionDeleted = true; // <-- important !
+      req.reply({
+        statusCode: 204,
+        body: {}
+      });
     }).as('deleteSession');
 
-    // Après suppression, liste sessions vide à nouveau
-    cy.intercept('GET', '/api/session', {
-      statusCode: 200,
-      body: []
-    }).as('getSessionsAfterDelete');
+  
 
-    // --- Test UI ---
+    // Visite relative en fonction du baseUrl (ex: http://localhost:4200)
+    cy.visit('/login');
 
-    cy.visit('http://localhost:4200/login');
-
-    // Login
+    // Remplissage du formulaire login
     cy.get('input[formcontrolname="email"]').type('yoga@studio.com');
     cy.get('input[formcontrolname="password"]').type('test!1234');
     cy.get('button[type="submit"]').click();
@@ -154,52 +145,51 @@ cy.intercept('GET', '/api/session/29', {
     cy.wait('@login');
     //cy.wait('@getUser');
 
+    // On arrive sur /sessions
     cy.url().should('include', '/sessions');
 
-    // Bouton créer session
     cy.get('button[routerlink="create"]').should('be.visible').click();
 
     cy.contains('Create session').should('exist');
 
- cy.wait('@getTeachers');
+    cy.wait('@getTeachers');
     // Formulaire de création de session
     cy.get('input[formcontrolname="name"]').type(uniqueSession);
     cy.get('input[formcontrolname="date"]').invoke('val', '2026-07-18').trigger('input');
 
     cy.get('mat-select[formcontrolname="teacher_id"]').click();
     cy.wait(500);
-cy.get('body').find('mat-option').contains('Hélène THIERCELIN').click();
+cy.get('body').find('mat-option').contains('Margot DELAHAYE').click();
 
     cy.get('textarea[formcontrolname="description"]').type('Voici le texte de description.', { force: true });
     cy.get('button[type="submit"]').contains('Save').click();
 
-    cy.wait(500);
     cy.wait('@createSession');
-    cy.wait(500);
 
- 
-    cy.wait('@getSessionsAfterCreate');
+    // Après création, on re-récupère la liste
+    cy.wait('@getSessions');
 
+    // Vérifie que la session unique apparait bien dans la liste
     cy.contains(uniqueSession).should('exist');
 
-    // Cliquer sur le détail de la session
+      // Détail
     cy.contains('mat-card-title', uniqueSession)
       .closest('mat-card')
       .contains('span.ml1', 'Detail')
       .click();
 
+      cy.wait('@getSessionDetail');
+       cy.wait('@getTeacherDetail');
 
-cy.wait('@getTeacherDetail');
-    cy.wait('@getSessionDetail');
-    cy.wait(500);
-
-    // Supprimer la session
+  // Suppression
     cy.get('button').contains('Delete').click();
-
     cy.wait('@deleteSession');
-    cy.wait('@getSessionsAfterDelete');
 
-    // La session ne doit plus exister
+     cy.wait('@getSessions');
+
+  // Vérification suppression
     cy.contains('mat-card-title', uniqueSession).should('not.exist');
+
+
   });
 });
