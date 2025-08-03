@@ -7,7 +7,8 @@ module.exports = {
         use: {
           loader: 'babel-loader',
           options: {
-            plugins: ['istanbul'],
+            presets: ['@babel/preset-env', '@babel/preset-typescript'],
+            plugins: ['istanbul'], // ← cette ligne est obligatoire
           },
         },
       },

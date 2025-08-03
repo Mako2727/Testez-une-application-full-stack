@@ -10,4 +10,7 @@
     "./src/test.ts",
     "**/*.conf.js"
   ]
+  ,
+  "report-dir": "./coverage/cypress",
+  "reporter": ["html", "text-summary", "lcov"]
 }
