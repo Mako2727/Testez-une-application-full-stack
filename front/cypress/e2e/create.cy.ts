@@ -4,7 +4,7 @@ describe('Test login via interface Angular', () => {
   it('doit se connecter via le formulaire Angular, créer une session, et vérifier son affichage', () => {
     const uniqueSession = `test_${Date.now()}`;
 
-    // Mock du login POST avec URL relative
+   
     cy.intercept('POST', '/api/auth/login', {
       statusCode: 200,
       body: {
@@ -32,13 +32,13 @@ cy.intercept('GET', '**/api/user/1', {
   }
 }).as('getUser');
 
-    // Mock récupération liste sessions avant création
+ 
     cy.intercept('GET', '/api/session', {
       statusCode: 200,
-      body: [] // Pas de session au début
+      body: []
     }).as('getSessions');
 
-    // Mock création de session POST
+   
     cy.intercept('POST', '/api/session', (req) => {
       expect(req.body.name).to.equal(uniqueSession);
       req.reply({
@@ -57,7 +57,7 @@ cy.intercept('GET', '**/api/user/1', {
       });
     }).as('createSession');
 
-    // Mock récupération sessions après création (avec la session créée)
+   
     cy.intercept('GET', '/api/session', {
       statusCode: 200,
       body: [{
@@ -93,18 +93,18 @@ cy.intercept('GET', '**/api/user/1', {
   ]
 }).as('getTeachers');
 
-    // Visite relative en fonction du baseUrl (ex: http://localhost:4200)
+   
     cy.visit('/login');
 
-    // Remplissage du formulaire login
+   
     cy.get('input[formcontrolname="email"]').type('yoga@studio.com');
     cy.get('input[formcontrolname="password"]').type('test!1234');
     cy.get('button[type="submit"]').click();
 
     cy.wait('@login');
-    //cy.wait('@getUser');
+    
 
-    // On arrive sur /sessions
+    
     cy.url().should('include', '/sessions');
 
     cy.get('button[routerlink="create"]').should('be.visible').click();
@@ -112,7 +112,7 @@ cy.intercept('GET', '**/api/user/1', {
     cy.contains('Create session').should('exist');
 
     cy.wait('@getTeachers');
-    // Formulaire de création de session
+    
     cy.get('input[formcontrolname="name"]').type(uniqueSession);
     cy.get('input[formcontrolname="date"]').invoke('val', '2026-07-18').trigger('input');
 
@@ -125,10 +125,10 @@ cy.get('body').find('mat-option').contains('Margot DELAHAYE').click();
 
     cy.wait('@createSession');
 
-    // Après création, on re-récupère la liste
+   
     cy.wait('@getSessionsAfterCreate');
 
-    // Vérifie que la session unique apparait bien dans la liste
+    
     cy.contains(uniqueSession).should('exist');
   });
 });

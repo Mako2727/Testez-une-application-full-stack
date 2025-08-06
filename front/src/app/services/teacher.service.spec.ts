@@ -1,4 +1,3 @@
-import { HttpClientModule } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { expect } from '@jest/globals';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
@@ -114,7 +113,7 @@ describe('TeacherService - Integration', () => {
   });
 
   afterEach(() => {
-    httpMock.verify();  // Vérifie qu’aucune requête HTTP n’est restée en attente
+    httpMock.verify();  
   });
 
   it('should create the service', () => {

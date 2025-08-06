@@ -4,6 +4,7 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { RegisterRequest } from '../interfaces/registerRequest.interface';
 import { LoginRequest } from '../interfaces/loginRequest.interface';
 import { SessionInformation } from 'src/app/interfaces/sessionInformation.interface';
+import { expect } from '@jest/globals';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -32,14 +33,14 @@ describe('AuthService', () => {
     };
 
     service.register(dummyRegisterRequest).subscribe(response => {
-      expect(response).toBeUndefined(); // because Observable<void>
+      expect(response).toBeUndefined(); 
     });
 
     const req = httpMock.expectOne('api/auth/register');
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual(dummyRegisterRequest);
 
-    req.flush(null); // réponse vide pour void
+    req.flush(null); 
   });
 
   it('should login a user', () => {
@@ -98,10 +99,10 @@ describe('AuthService - Integration Tests', () => {
 
     service.register(dummyRegisterRequest).subscribe({
       next: (response) => {
-        expect(response).toBeUndefined(); // Observable<void> expected
+        expect(response).toBeUndefined(); 
       },
       error: () => {
-        // Ce test ne doit pas échouer ici
+        
         fail('La requête register ne devait pas échouer');
       }
     });
@@ -126,7 +127,7 @@ describe('AuthService - Integration Tests', () => {
         fail('La requête register devait échouer');
       },
       error: (error) => {
-        // Ne pas logger l’erreur directement pour éviter le circular JSON error
+       
         expect(error.status).toBe(400);
       }
     });

@@ -1,6 +1,6 @@
 import { defineConfig } from 'cypress';
 
-// ⚠ Typage explicite ici
+
 const coverageTaskMod: any = require('@cypress/code-coverage/task');
 
 export default defineConfig({

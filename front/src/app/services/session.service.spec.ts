@@ -46,7 +46,7 @@ describe('SessionService', () => {
   });
 
   it('should log out user and emit false', (done) => {
-    service.logIn(mockSessionInfo); // d'abord connecté
+    service.logIn(mockSessionInfo); 
     service.logOut();
 
     expect(service.isLogged).toBe(false);

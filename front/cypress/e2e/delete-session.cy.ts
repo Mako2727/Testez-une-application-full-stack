@@ -5,7 +5,7 @@ describe('Test login via interface Angular', () => {
     const uniqueSession = `test_${Date.now()}`;
     let sessionDeleted = false; 
 
-    // Mock du login POST avec URL relative
+    
     cy.intercept('POST', '/api/auth/login', {
       statusCode: 200,
       body: {
@@ -37,7 +37,7 @@ cy.intercept('GET', '**/api/user/1', {
       if (sessionDeleted) {
         req.reply({
           statusCode: 200,
-          body: [] // plus aucune session après suppression
+          body: [] 
         });
       } else {
         req.reply({
@@ -57,7 +57,7 @@ cy.intercept('GET', '**/api/user/1', {
       }
     }).as('getSessions');
 
-    // Mock création de session POST
+   
     cy.intercept('POST', '/api/session', (req) => {
       expect(req.body.name).to.equal(uniqueSession);
       req.reply({
@@ -98,7 +98,7 @@ cy.intercept('GET', '**/api/user/1', {
   ]
 }).as('getTeachers');
 
- // Détail de la session
+ 
     cy.intercept('GET', '/api/session/123', {
       statusCode: 200,
       body: {
@@ -125,7 +125,7 @@ cy.intercept('GET', '**/api/user/1', {
     }).as('getTeacherDetail');
 
  cy.intercept('DELETE', '/api/session/123', (req) => {
-      sessionDeleted = true; // <-- important !
+      sessionDeleted = true; 
       req.reply({
         statusCode: 204,
         body: {}
@@ -134,18 +134,18 @@ cy.intercept('GET', '**/api/user/1', {
 
   
 
-    // Visite relative en fonction du baseUrl (ex: http://localhost:4200)
+    
     cy.visit('/login');
 
-    // Remplissage du formulaire login
+    
     cy.get('input[formcontrolname="email"]').type('yoga@studio.com');
     cy.get('input[formcontrolname="password"]').type('test!1234');
     cy.get('button[type="submit"]').click();
 
     cy.wait('@login');
-    //cy.wait('@getUser');
+   
 
-    // On arrive sur /sessions
+   
     cy.url().should('include', '/sessions');
 
     cy.get('button[routerlink="create"]').should('be.visible').click();
@@ -153,7 +153,7 @@ cy.intercept('GET', '**/api/user/1', {
     cy.contains('Create session').should('exist');
 
     cy.wait('@getTeachers');
-    // Formulaire de création de session
+   
     cy.get('input[formcontrolname="name"]').type(uniqueSession);
     cy.get('input[formcontrolname="date"]').invoke('val', '2026-07-18').trigger('input');
 
@@ -166,13 +166,13 @@ cy.get('body').find('mat-option').contains('Margot DELAHAYE').click();
 
     cy.wait('@createSession');
 
-    // Après création, on re-récupère la liste
+   
     cy.wait('@getSessions');
 
-    // Vérifie que la session unique apparait bien dans la liste
+   
     cy.contains(uniqueSession).should('exist');
 
-      // Détail
+      
     cy.contains('mat-card-title', uniqueSession)
       .closest('mat-card')
       .contains('span.ml1', 'Detail')
@@ -181,13 +181,13 @@ cy.get('body').find('mat-option').contains('Margot DELAHAYE').click();
       cy.wait('@getSessionDetail');
        cy.wait('@getTeacherDetail');
 
-  // Suppression
+ 
     cy.get('button').contains('Delete').click();
     cy.wait('@deleteSession');
 
      cy.wait('@getSessions');
 
-  // Vérification suppression
+  
     cy.contains('mat-card-title', uniqueSession).should('not.exist');
 
 

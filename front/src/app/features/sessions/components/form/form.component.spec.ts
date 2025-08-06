@@ -84,7 +84,7 @@ beforeEach(async () => {
     fixture = TestBed.createComponent(FormComponent);
     component = fixture.componentInstance;
 
-    // Par défaut mock teacherService.all() retourne un Observable vide
+    
     mockTeacherService.all.mockReturnValue(of([]));
   });
 
@@ -96,7 +96,7 @@ beforeEach(async () => {
     mockSessionService.sessionInformation.admin = false;
     component.ngOnInit();
     expect(mockRouter.navigate).toHaveBeenCalledWith(['/sessions']);
-    mockSessionService.sessionInformation.admin = true; // reset pour autres tests
+    mockSessionService.sessionInformation.admin = true; 
   });
 
   it('should call detail and initForm on ngOnInit when url contains "update"', fakeAsync(() => {

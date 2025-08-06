@@ -55,7 +55,7 @@ beforeEach(async () => {
   });
 
   it('should navigate to /login on successful submit', () => {
-    mockAuthService.register.mockReturnValue(of(void 0)); // simulate void Observable
+    mockAuthService.register.mockReturnValue(of(void 0)); 
 
     component.form.setValue({
       email: 'test@example.com',

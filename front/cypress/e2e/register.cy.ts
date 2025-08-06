@@ -1,7 +1,7 @@
 /// <reference types="cypress" />
 describe('Test register via interface Angular', () => {
   beforeEach(() => {
-    // Mock de la requête POST register pour simuler une inscription réussie
+    
     cy.intercept('POST', '/api/auth/register', {
       statusCode: 200,
       body: { message: 'User registered successfully' }
@@ -22,10 +22,10 @@ describe('Test register via interface Angular', () => {
 
     cy.get('button[type="submit"]').click();
 
-    // On attend la fin de la requête mockée d’inscription
+    
     cy.wait('@register');
 
-    // Vérifie que l’URL contient /login (redirection vers login après inscription)
+    
     cy.url().should('include', '/login');
   });
 });

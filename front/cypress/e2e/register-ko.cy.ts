@@ -1,7 +1,7 @@
 /// <reference types="cypress" />
 describe('Test register via interface Angular', () => {
   beforeEach(() => {
-    // Interception POST register avec une réponse d'erreur simulée
+    
     cy.intercept('POST', '/api/auth/register', {
       statusCode: 400,
       body: { message: 'Erreur lors de l\'inscription' }
@@ -19,10 +19,10 @@ describe('Test register via interface Angular', () => {
     cy.get('input[formcontrolname="password"]').click().type('test!1234');
     cy.get('button[type="submit"]').click();
 
-    // On attend que la requête register mockée soit terminée
+   
     cy.wait('@register');
 
-    // Vérifie que le message d'erreur s'affiche
+    
     cy.contains('An error occurred').should('exist');
   });
 });

@@ -6,6 +6,8 @@ import { of, BehaviorSubject } from 'rxjs';
 import { AppComponent } from './app.component';
 import { SessionService } from './services/session.service';
 import { NgZone } from '@angular/core';
+import { expect } from '@jest/globals';
+
 describe('AppComponent', () => {
   let isLoggedSubject: BehaviorSubject<boolean>;
   let sessionServiceSpy: any;
@@ -44,7 +46,7 @@ describe('AppComponent', () => {
   });
 
   it('should return observable from $isLogged', (done) => {
-    // On force la valeur true avant la souscription
+  
     isLoggedSubject.next(true);
 
     component.$isLogged().subscribe((logged) => {
@@ -57,9 +59,6 @@ describe('AppComponent', () => {
 
  it('should call logOut and navigate on logout', () => {
     const routerSpy = jest.spyOn((component as any).router, 'navigate');
-
-    // <<< MODIFICATION ICI >>>
-    // On utilise l'instance ngZone et non la classe NgZone
     ngZone.run(() => {
       component.logout();
     });

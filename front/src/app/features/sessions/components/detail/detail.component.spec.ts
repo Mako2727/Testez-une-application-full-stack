@@ -9,7 +9,7 @@ import { SessionApiService } from '../../services/session-api.service';
 import { DetailComponent } from './detail.component';
 import { TeacherService } from '../../../../services/teacher.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { of,throwError } from 'rxjs';
+import { of } from 'rxjs';
 import { fakeAsync, tick, flush  } from '@angular/core/testing';
 import { FormBuilder } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
@@ -22,7 +22,7 @@ describe('DetailComponent', () => {
   let component: DetailComponent;
   let fixture: ComponentFixture<DetailComponent>;
 
-  // Mocks
+ 
   const mockSessionService = {
     sessionInformation: {
       id: 1,
@@ -57,7 +57,7 @@ beforeEach(async () => {
   await TestBed.configureTestingModule({
     declarations: [DetailComponent],
      imports: [
-        BrowserAnimationsModule,  // <-- Ajout obligatoire pour les animations
+        BrowserAnimationsModule,  
         MatSnackBarModule,
         RouterTestingModule,
         HttpClientModule,
@@ -67,7 +67,7 @@ beforeEach(async () => {
         NoopAnimationsModule     
       ],
     providers: [
-      FormBuilder,                    // <-- Ajouté ici
+      FormBuilder,                
       { provide: SessionService, useValue: mockSessionService },
       { provide: SessionApiService, useValue: mockSessionApiService },
       { provide: TeacherService, useValue: mockTeacherService },
@@ -79,7 +79,7 @@ beforeEach(async () => {
     fixture = TestBed.createComponent(DetailComponent);
     component = fixture.componentInstance;
 
-    // Setup default mock return values
+   
     mockSessionApiService.detail.mockReturnValue(of({
       id: 123,
       name: 'Session Test',
@@ -129,8 +129,8 @@ it('should delete session and navigate', fakeAsync(() => {
   
   component.delete();
   
-  tick();   // fait avancer les timers liés à l'observable
-  flush();  // nettoie tous timers restants, évite les erreurs "timer still in queue"
+  tick();  
+  flush();  
 
   expect(mockSessionApiService.delete).toHaveBeenCalledWith('123');
   expect(snackSpy).toHaveBeenCalledWith('Session deleted !', 'Close', { duration: 3000 });
@@ -159,7 +159,7 @@ it('should set isParticipate to false if user not in session users', fakeAsync((
     description: 'Desc',
     date: new Date(),
     teacher_id: 1,
-    users: [2,3]  // pas l’id 1 du mockSessionService
+    users: [2,3]  
   }));
 
   component.ngOnInit();
@@ -174,7 +174,7 @@ describe('DetailComponent avec services mockés', () => {
   let component: DetailComponent;
   let fixture: ComponentFixture<DetailComponent>;
 
-  // Mocks des services avec des méthodes jest.fn()
+  
   const mockSessionService = {
     sessionInformation: { id: 1, admin: true }
   };
@@ -206,7 +206,7 @@ describe('DetailComponent avec services mockés', () => {
     await TestBed.configureTestingModule({
       declarations: [DetailComponent],
       imports: [
-        // Modules Angular nécessaires
+        
         BrowserAnimationsModule,
         MatSnackBarModule,
         RouterTestingModule,
@@ -227,7 +227,7 @@ describe('DetailComponent avec services mockés', () => {
     fixture = TestBed.createComponent(DetailComponent);
     component = fixture.componentInstance;
 
-    // Définir les retours mockés par défaut pour les méthodes
+   
     mockSessionApiService.detail.mockReturnValue(of({
       id: 123,
       name: 'Session Test',
@@ -305,7 +305,7 @@ describe('DetailComponent avec services mockés', () => {
       description: 'Description',
       date: new Date(),
       teacher_id: 1,
-      users: [2, 3] // L’ID 1 n’est pas dans la liste
+      users: [2, 3] 
     }));
 
     component.ngOnInit();
