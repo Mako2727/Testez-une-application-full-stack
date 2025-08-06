@@ -28,7 +28,7 @@ class UserDetailsImplTest {
         assertTrue(user.getAdmin());
         assertEquals("secret", user.getPassword());
 
-        // Authorities should be empty HashSet
+        
         Collection<? extends GrantedAuthority> authorities = user.getAuthorities();
         assertNotNull(authorities);
         assertTrue(authorities instanceof HashSet);
@@ -51,7 +51,7 @@ void testEquals() {
     UserDetailsImpl user2 = UserDetailsImpl.builder().id(1L).build();
     UserDetailsImpl user3 = UserDetailsImpl.builder().id(2L).build();
 
-    // Cas objet égal à lui-même
+    
     assertEquals(user1, user1);
 
     assertEquals(user1, user2);

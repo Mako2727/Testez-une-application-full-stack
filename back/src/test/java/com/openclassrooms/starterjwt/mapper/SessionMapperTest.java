@@ -166,7 +166,7 @@ class SessionMapperTest {
 
     @Test
 void testToEntityList() {
-    // Prépare deux DTO
+    
     SessionDto dto1 = new SessionDto();
     dto1.setId(1L);
     dto1.setName("Yoga");
@@ -179,22 +179,22 @@ void testToEntityList() {
     dto2.setId(2L);
     dto2.setName("Pilates");
     dto2.setDescription("Session 2");
-    dto2.setTeacher_id(null);  // test aussi null teacher_id
+    dto2.setTeacher_id(null);  
     dto2.setDate(new Date());
     dto2.setUsers(Collections.singletonList(100L));
 
-    // Mock des services pour correspondre aux IDs
+    
     when(teacherService.findById(10L)).thenReturn(teacher);
     when(userService.findById(100L)).thenReturn(user1);
     when(userService.findById(101L)).thenReturn(user2);
 
-    // Appel de la méthode à tester
+    
     List<Session> sessions = sessionMapper.toEntity(Arrays.asList(dto1, dto2));
 
     assertNotNull(sessions);
     assertEquals(2, sessions.size());
 
-    // Vérifie le premier
+    
     Session s1 = sessions.get(0);
     assertEquals("Yoga", s1.getName());
     assertNotNull(s1.getTeacher());
@@ -203,10 +203,10 @@ void testToEntityList() {
     assertTrue(s1.getUsers().contains(user1));
     assertTrue(s1.getUsers().contains(user2));
 
-    // Vérifie le second
+    
     Session s2 = sessions.get(1);
     assertEquals("Pilates", s2.getName());
-    assertNull(s2.getTeacher());  // teacher_id null donc teacher null
+    assertNull(s2.getTeacher()); 
     assertEquals(1, s2.getUsers().size());
     assertTrue(s2.getUsers().contains(user1));
 }
@@ -219,6 +219,6 @@ void testToDto_withTeacherButNoId() {
     SessionDto dto = sessionMapper.toDto(session);
 
     assertNotNull(dto);
-    assertNull(dto.getTeacher_id());  // on s'attend à null si teacher.id est null
+    assertNull(dto.getTeacher_id()); 
 }
 }

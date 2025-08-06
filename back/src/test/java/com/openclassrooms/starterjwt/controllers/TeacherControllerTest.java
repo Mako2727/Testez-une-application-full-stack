@@ -35,7 +35,7 @@ class TeacherControllerTest {
     private MockMvc mockMvc;
     private ObjectMapper objectMapper;
 
-    // Variables réutilisées
+    
     private final Long validId = 1L;
     private Teacher teacher1;
     private Teacher teacher2;
@@ -51,7 +51,7 @@ class TeacherControllerTest {
         objectMapper.registerModule(new JavaTimeModule());
         mockMvc = MockMvcBuilders.standaloneSetup(teacherController).build();
 
-        // Initialisation des objets communs
+        
         teacher1 = Teacher.builder()
                 .id(1L)
                 .firstName("John")

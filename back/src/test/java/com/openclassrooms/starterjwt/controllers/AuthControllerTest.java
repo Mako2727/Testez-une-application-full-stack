@@ -47,7 +47,7 @@ public class AuthControllerTest {
 
     private ObjectMapper objectMapper;
 
-    // Données réutilisées
+   
     private LoginRequest loginRequest;
     private SignupRequest signupRequest;
     private Authentication auth;
@@ -60,25 +60,25 @@ public class AuthControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(authController).build();
         objectMapper = new ObjectMapper();
 
-        // Objet commun LoginRequest
+        
         loginRequest = new LoginRequest();
         loginRequest.setEmail("yoga@studio.com");
         loginRequest.setPassword("test!1234");
 
-        // Objet commun SignupRequest
+        
         signupRequest = new SignupRequest();
         signupRequest.setEmail("newuser@example.com");
         signupRequest.setPassword("password");
         signupRequest.setFirstName("FirstName");
         signupRequest.setLastName("LastName");
 
-        // Mocks communs
+        
         auth = mock(Authentication.class);
         userDetails = mock(UserDetailsImpl.class);
 
         user = new User("yoga@studio.com", "LastName", "FirstName", "encodedPass", true);
 
-        // Configuration mocks userDetails
+        
         when(userDetails.getUsername()).thenReturn("yoga@studio.com");
         when(userDetails.getId()).thenReturn(1L);
         when(userDetails.getFirstName()).thenReturn("FirstName");
@@ -106,7 +106,7 @@ public class AuthControllerTest {
 
     @Test
     void testRegisterUser_emailTaken() throws Exception {
-        signupRequest.setEmail("yoga@studio.com"); // Email déjà pris
+        signupRequest.setEmail("yoga@studio.com"); 
 
         when(userRepository.existsByEmail("yoga@studio.com")).thenReturn(true);
 
@@ -119,7 +119,7 @@ public class AuthControllerTest {
 
     @Test
     void testRegisterUser_success() throws Exception {
-        signupRequest.setEmail("newuser@example.com"); // Email nouveau
+        signupRequest.setEmail("newuser@example.com"); 
         when(userRepository.existsByEmail("newuser@example.com")).thenReturn(false);
         when(passwordEncoder.encode("password")).thenReturn("encodedPassword");
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));

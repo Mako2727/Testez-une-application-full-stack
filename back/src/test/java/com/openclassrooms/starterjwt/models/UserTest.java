@@ -31,14 +31,14 @@ class UserTest {
         assertEquals(now, user.getCreatedAt());
         assertEquals(now, user.getUpdatedAt());
 
-        // Test equals and hashCode based on id
+        
         User user2 = new User();
         user2.setId(1L);
 
         assertEquals(user, user2);
         assertEquals(user.hashCode(), user2.hashCode());
 
-        // Test toString contains main fields
+        
         String toString = user.toString();
         assertTrue(toString.contains("User"));
         assertTrue(toString.contains("id=1"));
@@ -88,7 +88,7 @@ void testRequiredArgsConstructor_coversAllParams() {
     assertEquals("pwd123", user.getPassword());
     assertFalse(user.isAdmin());
 
-    // Les champs null non gérés par ce constructeur
+    
     assertNull(user.getId());
     assertNull(user.getCreatedAt());
     assertNull(user.getUpdatedAt());
@@ -97,15 +97,15 @@ void testRequiredArgsConstructor_coversAllParams() {
 void testSetFirstName_explicitValues() {
     User user = new User();
 
-    // Nom classique
+    
     user.setFirstName("Alice");
     assertEquals("Alice", user.getFirstName());
 
-    // Nom vide
+    
     user.setFirstName("");
     assertEquals("", user.getFirstName());
 
-    // Nom très long (max = 20 caractères)
+    
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < 20; i++) {
         sb.append("A");
@@ -114,22 +114,22 @@ void testSetFirstName_explicitValues() {
     user.setFirstName(longFirstName);
     assertEquals(longFirstName, user.getFirstName());
 
-    // Nom null : doit lever une NullPointerException à cause de @NonNull
+    
     assertThrows(NullPointerException.class, () -> user.setFirstName(null));
 }
 @Test
 void testSetLastName_explicitValues() {
     User user = new User();
 
-    // Cas standard
+    
     user.setLastName("Dupont");
     assertEquals("Dupont", user.getLastName());
 
-    // Chaîne vide
+    
     user.setLastName("");
     assertEquals("", user.getLastName());
 
-    // Chaîne longue (20 caractères)
+    
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < 20; i++) {
         sb.append("Z");
@@ -138,22 +138,22 @@ void testSetLastName_explicitValues() {
     user.setLastName(longLastName);
     assertEquals(longLastName, user.getLastName());
 
-    // Null (doit lever une exception à cause de @NonNull)
+    
     assertThrows(NullPointerException.class, () -> user.setLastName(null));
 }
 @Test
 void testSetPassword_explicitValues() {
     User user = new User();
 
-    // Mot de passe standard
+    
     user.setPassword("mySecurePassword123");
     assertEquals("mySecurePassword123", user.getPassword());
 
-    // Mot de passe vide
+    
     user.setPassword("");
     assertEquals("", user.getPassword());
 
-    // Mot de passe long (120 caractères)
+    
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < 120; i++) {
         sb.append("X");
@@ -162,7 +162,7 @@ void testSetPassword_explicitValues() {
     user.setPassword(longPassword);
     assertEquals(longPassword, user.getPassword());
 
-    // Null → doit lever NullPointerException à cause de @NonNull
+    
     assertThrows(NullPointerException.class, () -> user.setPassword(null));
 }
 
@@ -177,26 +177,26 @@ void testEquals() {
     User user3 = new User();
     user3.setId(2L);
 
-    // Réflexivité
+    
     assertEquals(user1, user1);
 
-    // Symétrie
+    
     assertEquals(user1, user2);
     assertEquals(user2, user1);
 
-    // Transitivité
+   
     User user4 = new User();
     user4.setId(1L);
     assertEquals(user1, user4);
     assertEquals(user2, user4);
 
-    // Différence
+    
     assertNotEquals(user1, user3);
 
-    // Null
+    
     assertNotEquals(user1, null);
 
-    // Autre type
+    
     assertNotEquals(user1, "une chaîne");
 
  
@@ -215,13 +215,13 @@ void testHashCode() {
     User userNull1 = new User();
     User userNull2 = new User();
 
-    // Même id → mêmes hashCode
+    
     assertEquals(user1.hashCode(), user2.hashCode());
 
-    // Id différents → hashCode différents (probablement)
+    
     assertNotEquals(user1.hashCode(), user3.hashCode());
 
-    // Id null → mêmes hashCode (souvent 0)
+   
     assertEquals(userNull1.hashCode(), userNull2.hashCode());
 }
 
@@ -256,17 +256,17 @@ void testUserBuilderToString() {
 void testSetLastName() {
     User user = new User();
 
-    // Nom de famille valide
+    
     String validLastName = "Dupont";
     user.setLastName(validLastName);
     assertEquals(validLastName, user.getLastName());
 
-    // Nom de famille vide (on vérifie qu'on accepte la chaîne vide)
+    
     String emptyLastName = "";
     user.setLastName(emptyLastName);
     assertEquals(emptyLastName, user.getLastName());
 
-    // Nom de famille null (si ta classe interdit le null, on teste l'exception)
+    
     assertThrows(NullPointerException.class, () -> user.setLastName(null));
 }
 
@@ -274,17 +274,17 @@ void testSetLastName() {
 void testSetEmail() {
     User user = new User();
 
-    // Email valide
+    
     String validEmail = "exemple@test.com";
     user.setEmail(validEmail);
     assertEquals(validEmail, user.getEmail());
 
-    // Email vide
+    
     String emptyEmail = "";
     user.setEmail(emptyEmail);
     assertEquals(emptyEmail, user.getEmail());
 
-    // Email null (si la classe interdit null, on teste que ça lance une exception)
+    
     assertThrows(NullPointerException.class, () -> user.setEmail(null));
 }
 
@@ -311,11 +311,11 @@ void testEqualsAndHashCode_nullId() {
     User user1 = new User().setId(null);
     User user2 = new User().setId(null);
 
-    // Les deux objets sont égaux puisque id est null dans les deux (basé sur equals/hashCode lombok)
+    
     assertEquals(user1, user2);
     assertEquals(user1.hashCode(), user2.hashCode());
 
-    // Un objet est égal à lui-même
+    
     assertEquals(user1, user1);
 }
 
@@ -340,7 +340,7 @@ void testEquals_sameObject() {
 void testUserBuilderSetEmail() {
     LocalDateTime now = LocalDateTime.now();
 
-    // Construire un User via le builder en précisant l'email
+    
     User user = User.builder()
             .email("builder.email@example.com")
             .firstName("John")
@@ -351,10 +351,10 @@ void testUserBuilderSetEmail() {
             .updatedAt(now)
             .build();
 
-    // Vérifier que l'email est bien pris en compte
+    
     assertEquals("builder.email@example.com", user.getEmail());
 
-    // Vérifier que les autres champs sont bien initialisés
+    
     assertEquals("John", user.getFirstName());
     assertEquals("Doe", user.getLastName());
     assertEquals("password123", user.getPassword());
@@ -367,7 +367,7 @@ void testUserBuilderSetEmail() {
 void testUserBuilderEmailNullThrowsException() {
     LocalDateTime now = LocalDateTime.now();
 
-    // Le champ email est annoté @NonNull, donc builder.email(null) devrait lancer une NPE à la construction
+    
     assertThrows(NullPointerException.class, () -> {
         User.builder()
             .email(null)
@@ -386,7 +386,7 @@ void testUserBuilderSetFirstName() {
     LocalDateTime now = LocalDateTime.now();
 
     User user = User.builder()
-            .email("test@example.com")  // email est @NonNull, doit être fourni
+            .email("test@example.com")  
             .firstName("BuilderFirstName")
             .lastName("Doe")
             .password("password123")
@@ -408,7 +408,7 @@ void testUserBuilderSetFirstName() {
 void testUserBuilderFirstNameNullThrowsException() {
     LocalDateTime now = LocalDateTime.now();
 
-    // firstName est @NonNull, la construction doit échouer si null
+    
     assertThrows(NullPointerException.class, () -> {
         User.builder()
             .email("test@example.com")
@@ -427,7 +427,7 @@ void testUserBuilderSetLastName() {
     LocalDateTime now = LocalDateTime.now();
 
     User user = User.builder()
-            .email("test@example.com")  // Obligatoire car @NonNull
+            .email("test@example.com")  
             .firstName("John")
             .lastName("BuilderLastName")
             .password("password123")
@@ -449,7 +449,7 @@ void testUserBuilderSetLastName() {
 void testUserBuilderLastNameNullThrowsException() {
     LocalDateTime now = LocalDateTime.now();
 
-    // lastName est @NonNull, donc builder doit lever une NullPointerException
+    
     assertThrows(NullPointerException.class, () -> {
         User.builder()
             .email("test@example.com")
@@ -468,7 +468,7 @@ void testUserBuilderSetPassword() {
     LocalDateTime now = LocalDateTime.now();
 
     User user = User.builder()
-            .email("test@example.com")  // Obligatoire @NonNull
+            .email("test@example.com")  
             .firstName("John")
             .lastName("Doe")
             .password("MySecretPass123")
@@ -490,7 +490,7 @@ void testUserBuilderSetPassword() {
 void testUserBuilderPasswordNullThrowsException() {
     LocalDateTime now = LocalDateTime.now();
 
-    // password est @NonNull, donc builder doit lever NullPointerException si null
+  
     assertThrows(NullPointerException.class, () -> {
         User.builder()
             .email("test@example.com")
@@ -534,11 +534,11 @@ void testAllArgsConstructorWithoutNullsAndFalse() {
     LocalDateTime now = LocalDateTime.now();
 
     User user = new User(
-        null,                      // id peut être null
-        "test@example.com",        // email non null obligatoire
-        "Doe",                    // lastName non null obligatoire
-        "John",                   // firstName non null obligatoire
-        "secret",                 // password non null obligatoire
+        null,                      
+        "test@example.com",       
+        "Doe",                   
+        "John",                   
+        "secret",                
         false,
         now,
         now
@@ -559,10 +559,10 @@ void testAllArgsConstructorWithoutNullForNonNullFields() {
 
     User user = new User(
         1L,
-        "email@example.com",  // Obligatoire non-null
-        "LastName",           // Obligatoire non-null
-        "FirstName",          // Obligatoire non-null
-        "password",           // Obligatoire non-null
+        "email@example.com",  
+        "LastName",          
+        "FirstName",          
+        "password",           
         false,
         now,
         now
@@ -584,7 +584,7 @@ void testAllArgsConstructorThrowsExceptionOnNullEmail() {
     assertThrows(NullPointerException.class, () -> {
         new User(
             1L,
-            null,  // Email null provoque NullPointerException
+            null,  
             "LastName",
             "FirstName",
             "password",
@@ -621,7 +621,7 @@ void testAllArgsConstructorThrowsOnNullPassword() {
 
 @Test
 void testRequiredArgsConstructor() {
-    // Cas valide
+    
     User user = new User("test@example.com", "Doe", "John", "secret", true);
 
     assertEquals("test@example.com", user.getEmail());
@@ -630,7 +630,7 @@ void testRequiredArgsConstructor() {
     assertEquals("secret", user.getPassword());
     assertTrue(user.isAdmin());
 
-    // Les autres champs non initialisés par ce constructeur doivent être null
+   
     assertNull(user.getId());
     assertNull(user.getCreatedAt());
     assertNull(user.getUpdatedAt());
@@ -707,7 +707,7 @@ void testEquals_differentClass_shouldNotBeEqual() {
 
 @Test
 void testEquals_nullIdComparison_shouldNotBeEqual() {
-    User user1 = new User(); // id null
+    User user1 = new User(); 
     User user2 = new User();
     user2.setId(2L);
 

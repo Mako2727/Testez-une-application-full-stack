@@ -66,17 +66,17 @@ class SessionControllerIntegrationTest {
 
     @BeforeEach
     void setUp() throws Exception {
-      /* */  sessionRepository.deleteAll();
+      sessionRepository.deleteAll();
         teacherRepository.deleteAll();
         userRepository.deleteAll();
 
-        //Créer un user pour l'auth
+       
         User user = new User();
         user.setEmail("yoga1@studio.com");
-        user.setPassword(passwordEncoder.encode("test!1234")); // mot de passe: test
+        user.setPassword(passwordEncoder.encode("test!1234")); 
         user.setFirstName("Test");
         user.setLastName("User");
-        user.setAdmin(true); // 
+        user.setAdmin(true); 
         User savedUser = userRepository.save(user);
          userId = savedUser.getId();
 
@@ -109,7 +109,7 @@ class SessionControllerIntegrationTest {
         List<User> users = new ArrayList<>();
         users.add(user);
         session.setUsers(users);
-        existingSession = sessionRepository.save(session);  // sauvegarde, l'ID est généré ici
+        existingSession = sessionRepository.save(session);  
         sessionId = existingSession.getId();    
          userIdParticipate = session.getUsers().get(0).getId();
     }
@@ -140,7 +140,7 @@ class SessionControllerIntegrationTest {
 void testFindAll_success() throws Exception {
    
 
-    // Appelle l'endpoint sécurisé avec le token
+    
     mockMvc.perform(get("/api/session")
             .header("Authorization", "Bearer " + jwtToken))
             .andExpect(status().isOk())
@@ -153,7 +153,7 @@ void testFindAll_success() throws Exception {
         dto.setName("Nouvelle session");
         dto.setDescription("Description");
         dto.setDate(Date.valueOf(LocalDate.now()));
-        dto.setTeacher_id(teacher.getId()); // Prof valide
+        dto.setTeacher_id(teacher.getId()); 
 
         mockMvc.perform(post("/api/session")
                         .header("Authorization", "Bearer " + jwtToken)

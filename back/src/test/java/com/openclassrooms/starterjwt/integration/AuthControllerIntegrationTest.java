@@ -43,7 +43,7 @@ class AuthControllerIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    // Utilisateurs créés pour les tests
+    
     private User existingUser;
     private User userToAuthenticate;
 
@@ -51,7 +51,7 @@ class AuthControllerIntegrationTest {
     void setUp() {
         userRepository.deleteAll();
 
-        // Utilisateur existant pour test "email déjà pris"
+        
         existingUser = new User();
         existingUser.setEmail("existing@example.com");
         existingUser.setFirstName("Existing");
@@ -60,7 +60,7 @@ class AuthControllerIntegrationTest {
         existingUser.setAdmin(false);
         userRepository.save(existingUser);
 
-        // Utilisateur pour test d'authentification réussi
+       
         userToAuthenticate = new User();
         userToAuthenticate.setEmail("yoga@studio.com");
         userToAuthenticate.setFirstName("Admin");
@@ -102,7 +102,7 @@ class AuthControllerIntegrationTest {
     @Test
     void testRegisterUser_EmailAlreadyTaken() throws Exception {
         SignupRequest signupRequest = new SignupRequest();
-        signupRequest.setEmail(existingUser.getEmail()); // email déjà pris
+        signupRequest.setEmail(existingUser.getEmail()); 
         signupRequest.setFirstName("John");
         signupRequest.setLastName("Doe");
         signupRequest.setPassword("password123");

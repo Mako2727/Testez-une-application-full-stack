@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles("test")  // application-test.properties avec H2
+@ActiveProfiles("test")  
 @Transactional
 public class UserControllerIntegrationTest {
 
@@ -50,7 +50,7 @@ public class UserControllerIntegrationTest {
     void setUp() throws Exception {
         userRepository.deleteAll();
 
-        // Création utilisateur avec mot de passe encodé
+      
         User user = new User();
         user.setEmail("user@test.com");
         user.setFirstName("Test");
@@ -59,7 +59,7 @@ public class UserControllerIntegrationTest {
         user = userRepository.save(user);
         existingUser = user;
 
-        // Login pour récupérer token JWT
+       
         LoginRequest loginRequest = new LoginRequest();
         loginRequest.setEmail("user@test.com");
         loginRequest.setPassword("test1234");
@@ -74,7 +74,7 @@ public class UserControllerIntegrationTest {
 
         jwtToken = objectMapper.readTree(response).get("token").asText();
 
-        // Création d'un autre utilisateur
+       
         otherUser = new User();
         otherUser.setEmail("other@test.com");
         otherUser.setFirstName("Other");
@@ -118,7 +118,7 @@ public class UserControllerIntegrationTest {
     void testDeleteUser_unauthorized() throws Exception {
         
 
-        // Essayer de supprimer otherUser avec le token de existingUser => doit être 401
+        
         mockMvc.perform(delete("/api/user/{id}", otherUser.getId())
                         .header("Authorization", "Bearer " + jwtToken))
                 .andExpect(status().isUnauthorized());

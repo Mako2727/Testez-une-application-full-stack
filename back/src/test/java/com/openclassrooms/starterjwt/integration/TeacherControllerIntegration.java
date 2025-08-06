@@ -51,7 +51,7 @@ public class TeacherControllerIntegration {
         teacherRepository.deleteAll();
         userRepository.deleteAll();
 
-        // Créer un utilisateur pour l'authentification
+       
         User user = new User();
         user.setEmail("yoga1@studio.com");
         user.setPassword(passwordEncoder.encode("test!1234"));
@@ -60,7 +60,7 @@ public class TeacherControllerIntegration {
         user.setAdmin(true);
         userRepository.save(user);
 
-        // Authentification pour obtenir le token JWT
+        
         String loginJson = "{ \"email\": \"yoga1@studio.com\", \"password\": \"test!1234\" }";
         String response = mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -71,7 +71,7 @@ public class TeacherControllerIntegration {
         JsonNode jsonNode = objectMapper.readTree(response);
         jwtToken = jsonNode.get("token").asText();
 
-        // Créer deux enseignants
+        
         Teacher teacher = new Teacher();
         teacher.setFirstName("John");
         teacher.setLastName("Doe");

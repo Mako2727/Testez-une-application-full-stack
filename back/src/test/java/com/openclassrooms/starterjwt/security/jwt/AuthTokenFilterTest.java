@@ -59,7 +59,7 @@ public class AuthTokenFilterTest {
 
         authTokenFilter.doFilterInternal(request, response, filterChain);
 
-        // Vérifier que l'authentification a bien été définie dans le contexte
+       
         assertNotNull(SecurityContextHolder.getContext().getAuthentication());
         assertEquals(userDetails, SecurityContextHolder.getContext().getAuthentication().getPrincipal());
 
@@ -71,7 +71,7 @@ public class AuthTokenFilterTest {
 
     @Test
     void doFilterInternal_noJwt_doesNotSetAuthentication() throws Exception {
-        // Pas de header Authorization
+       
 
         authTokenFilter.doFilterInternal(request, response, filterChain);
 
@@ -104,10 +104,10 @@ public class AuthTokenFilterTest {
 
         when(jwtUtils.validateJwtToken(token)).thenThrow(new RuntimeException("test exception"));
 
-        // On s'assure que l'exception ne bloque pas le filtre
+        
         authTokenFilter.doFilterInternal(request, response, filterChain);
 
-        // L'authentification ne doit pas être définie
+        
         assertNull(SecurityContextHolder.getContext().getAuthentication());
 
         verify(jwtUtils).validateJwtToken(token);

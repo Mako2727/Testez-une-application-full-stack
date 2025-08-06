@@ -39,14 +39,14 @@ class SessionTest {
         assertEquals(now, session.getCreatedAt());
         assertEquals(now, session.getUpdatedAt());
 
-        // Test equals and hashCode with same id
+        
         Session session2 = new Session();
         session2.setId(10L);
 
         assertEquals(session, session2);
         assertEquals(session.hashCode(), session2.hashCode());
 
-        // Test toString contains key info
+        
         String toString = session.toString();
         assertTrue(toString.contains("Session"));
         assertTrue(toString.contains("id=10"));
@@ -96,13 +96,13 @@ void testHashCode() {
     Session sessionNull1 = new Session();
     Session sessionNull2 = new Session();
 
-    // Même id → mêmes hashCode
+   
     assertEquals(session1.hashCode(), session2.hashCode());
 
-    // Id différents → hashCode généralement différents
+    
     assertNotEquals(session1.hashCode(), session3.hashCode());
 
-    // Id null → mêmes hashCode (souvent 0)
+    
     assertEquals(sessionNull1.hashCode(), sessionNull2.hashCode());
 }
 
@@ -115,7 +115,7 @@ void testSessionBuilderToString() {
     User user1 = new User().setId(1L).setEmail("user1@example.com");
     User user2 = new User().setId(2L).setEmail("user2@example.com");
 
-    // Crée le builder, configure, puis appelle toString dessus
+    
     Session.SessionBuilder builder = Session.builder()
             .id(30L)
             .name("Builder ToString Test")

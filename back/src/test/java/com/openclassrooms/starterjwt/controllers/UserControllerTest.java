@@ -133,7 +133,7 @@ class UserControllerTest {
         when(userService.findById(validId)).thenReturn(user);
 
         UserDetails userDetails = mock(UserDetails.class);
-        when(userDetails.getUsername()).thenReturn("otheruser@example.com"); // utilisateur différent
+        when(userDetails.getUsername()).thenReturn("otheruser@example.com"); 
         when(userDetails.getAuthorities()).thenReturn(Collections.emptyList());
 
         Authentication authentication =

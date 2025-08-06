@@ -33,13 +33,13 @@ public class AuthEntryPointJwtTest {
 
         entryPoint.commence(request, response, authException);
 
-        // Vérifie le status
+       
         assertEquals(401, response.getStatus());
 
-        // Vérifie le content type JSON
+        
         assertEquals("application/json", response.getContentType());
 
-        // Vérifie le corps de la réponse JSON
+        
         String content = response.getContentAsString();
 
         ObjectMapper mapper = new ObjectMapper();

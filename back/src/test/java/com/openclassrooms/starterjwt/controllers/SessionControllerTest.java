@@ -36,7 +36,7 @@ class SessionControllerTest {
     private MockMvc mockMvc;
     private ObjectMapper objectMapper;
 
-    // Données réutilisées
+    
     private final Long validSessionId = 1L;
     private final Long validUserId = 2L;
     private Session sessionEntity;
@@ -50,7 +50,7 @@ class SessionControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(sessionController).build();
         objectMapper = new ObjectMapper();
 
-        // Initialisation objets communs
+        
         sessionEntity = new Session();
 
         sessionDto = new SessionDto();
@@ -240,16 +240,16 @@ class SessionControllerTest {
         String id = "123";
 
         SessionDto inputDto = new SessionDto();
-        // set fields on inputDto if needed
+        
 
         Session sessionEntity = new Session();
-        // set fields on sessionEntity if needed
+        
 
         Session updatedSession = new Session();
-        // set fields on updatedSession if needed
+        
 
         SessionDto updatedDto = new SessionDto();
-        // set fields on updatedDto if needed
+        
 
         when(sessionMapper.toEntity(inputDto)).thenReturn(sessionEntity);
         when(sessionService.update(123L, sessionEntity)).thenReturn(updatedSession);

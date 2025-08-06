@@ -26,14 +26,14 @@ class TeacherTest {
         assertEquals(now, teacher.getCreatedAt());
         assertEquals(now, teacher.getUpdatedAt());
 
-        // Test equals and hashCode based on id
+        
         Teacher teacher2 = new Teacher();
         teacher2.setId(1L);
 
         assertEquals(teacher, teacher2);
         assertEquals(teacher.hashCode(), teacher2.hashCode());
 
-        // Test toString contains main fields
+        
         String toString = teacher.toString();
         assertTrue(toString.contains("Teacher"));
         assertTrue(toString.contains("id=1"));
@@ -54,13 +54,13 @@ void testHashCode() {
     Teacher teacherNull1 = new Teacher();
     Teacher teacherNull2 = new Teacher();
 
-    // Même id → mêmes hashCode
+    
     assertEquals(teacher1.hashCode(), teacher2.hashCode());
 
-    // Id différents → hashCode différents (en général)
+   
     assertNotEquals(teacher1.hashCode(), teacher3.hashCode());
 
-    // Id null → mêmes hashCode (souvent 0)
+    
     assertEquals(teacherNull1.hashCode(), teacherNull2.hashCode());
 }
 
@@ -77,26 +77,26 @@ void testEquals() {
 
     Teacher teacherNull = new Teacher();
 
-    // Réflexivité
+    
     assertEquals(teacher1, teacher1);
 
-    // Comparaison avec null
+    
     assertNotEquals(teacher1, null);
 
-    // Comparaison avec un objet d'une autre classe
+    
     assertNotEquals(teacher1, "some string");
 
-    // Même id → égaux
+    
     assertEquals(teacher1, teacher2);
 
-    // Id différents → pas égaux
+    
     assertNotEquals(teacher1, teacher3);
 
-    // Id null, 2 objets distincts avec id null → égaux selon Lombok (si @EqualsAndHashCode(of="id"))
+    
     Teacher teacherNull2 = new Teacher();
     assertEquals(teacherNull, teacherNull2);
 
-    // Id null vs id non null → pas égaux
+    
     assertNotEquals(teacher1, teacherNull);
 }
 

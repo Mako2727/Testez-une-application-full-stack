@@ -26,7 +26,7 @@ public class JwtUtilsTest {
     void setUp() {
         jwtUtils = new JwtUtils();
         ReflectionTestUtils.setField(jwtUtils, "jwtSecret", "testSecretKey");
-        ReflectionTestUtils.setField(jwtUtils, "jwtExpirationMs", 3600000); // 1h
+        ReflectionTestUtils.setField(jwtUtils, "jwtExpirationMs", 3600000); 
     }
 
     @Test
@@ -62,7 +62,7 @@ public class JwtUtilsTest {
 
     @Test
     void validateJwtToken_shouldReturnFalseForInvalidToken() {
-        // Un token clairement invalide
+        
         String badToken = "invalid.token.value";
 
         boolean valid = jwtUtils.validateJwtToken(badToken);
@@ -84,8 +84,8 @@ void validateJwtToken_shouldReturnFalseForMalformedToken() {
 
 @Test
 void validateJwtToken_shouldReturnFalseForUnsupportedToken() {
-    // Simuler un token avec un algorithme non supporté ou format incorrect
-    String unsupportedToken = ""; // Ou autre token invalide
+   
+    String unsupportedToken = ""; 
     assertFalse(jwtUtils.validateJwtToken(unsupportedToken));
 }
 
@@ -118,7 +118,7 @@ void validateJwtToken_shouldReturnFalseForUnsupportedToken() {
         String expiredToken = Jwts.builder()
                 .setSubject("user")
                 .setIssuedAt(new Date(System.currentTimeMillis() - 10000))
-                .setExpiration(new Date(System.currentTimeMillis() - 5000))  // expiré il y a 5 sec
+                .setExpiration(new Date(System.currentTimeMillis() - 5000))  
                 .signWith(SignatureAlgorithm.HS512, "testSecretKey")
                 .compact();
 
@@ -127,15 +127,15 @@ void validateJwtToken_shouldReturnFalseForUnsupportedToken() {
 
 @Test
 void validateJwtToken_shouldReturnFalseForUnsupportedJwt() {
-    // Création d'un header JWT encodé avec un algorithme non supporté "alg":"fakeAlg"
+   
     String header = Base64.getUrlEncoder().withoutPadding()
                     .encodeToString("{\"alg\":\"fakeAlg\",\"typ\":\"JWT\"}".getBytes());
 
-    // Payload basique (sujet "user")
+   
     String payload = Base64.getUrlEncoder().withoutPadding()
                     .encodeToString("{\"sub\":\"user\"}".getBytes());
 
-    // Signature arbitraire (vide ou incorrecte)
+  
     String signature = "invalidsignature";
 
     String unsupportedToken = header + "." + payload + "." + signature;
@@ -159,7 +159,7 @@ void validateJwtToken_shouldReturnFalseForInvalidSignature() {
         .signWith(SignatureAlgorithm.HS512, "correctSecret")
         .compact();
 
-    // Injection d'une clé incorrecte dans jwtUtils
+   
     ReflectionTestUtils.setField(jwtUtils, "jwtSecret", "wrongSecret");
 
     assertFalse(jwtUtils.validateJwtToken(token));
@@ -196,7 +196,7 @@ void validateJwtToken_invalidSignature_shouldReturnFalse() {
         .setSubject("testuser")
         .setIssuedAt(new Date())
         .setExpiration(new Date(System.currentTimeMillis() + 10000))
-        .signWith(SignatureAlgorithm.HS512, "anotherSecret") // good token, wrong key
+        .signWith(SignatureAlgorithm.HS512, "anotherSecret") 
         .compact();
 
     ReflectionTestUtils.setField(jwtUtils, "jwtSecret", "testSecretKey");
@@ -215,7 +215,7 @@ void validateJwtToken_expiredToken_shouldReturnFalse() {
     String token = Jwts.builder()
         .setSubject("expiredUser")
         .setIssuedAt(new Date(System.currentTimeMillis() - 100000))
-        .setExpiration(new Date(System.currentTimeMillis() - 1000)) // expired
+        .setExpiration(new Date(System.currentTimeMillis() - 1000)) 
         .signWith(SignatureAlgorithm.HS512, "testSecretKey")
         .compact();
 

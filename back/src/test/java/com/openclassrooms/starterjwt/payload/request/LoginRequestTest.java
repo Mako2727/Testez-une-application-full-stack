@@ -17,7 +17,7 @@ class LoginRequestTest {
 
     @Test
     void testNotBlankConstraints() throws NoSuchFieldException {
-        // Vérifie que les annotations @NotBlank sont bien présentes sur les champs
+        
         assertTrue(LoginRequest.class.getDeclaredField("email").isAnnotationPresent(javax.validation.constraints.NotBlank.class));
         assertTrue(LoginRequest.class.getDeclaredField("password").isAnnotationPresent(javax.validation.constraints.NotBlank.class));
     }
